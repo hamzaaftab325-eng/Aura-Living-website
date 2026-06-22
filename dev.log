@@ -6,9 +6,15 @@
 - Local:         http://localhost:3000
 - Network:       http://21.0.7.94:3000
 - Environments: .env
-✓ Ready in 396ms
+✓ Ready in 369ms
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
 - Cache Components enabled
 - Experiments (use with caution):
   · optimizePackageImports
 
- GET / 200 in 958ms (next.js: 192ms, application-code: 766ms)
+○ Compiling / ...
+ GET / 200 in 4.1s (next.js: 3.3s, application-code: 768ms)
