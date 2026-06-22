@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. Visible sections: Curated Collections, Quote/Testimonial, Our Promise, From Our Customers (partial).  \n2. Product/category images: All visible collection images load correctly (no broken placeholders).  \n3. Layout balance: Content blocks are well-sized and balanced (not too narrow/stretched).  \n4. Aesthetic consistency: Gold/black premium aesthetic is consistent (dark background, gold accents, clean typography).  \n5. Visual defects: No overlapping elements, broken layout, missing text, white voids, or misaligned content.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1782101424,
+  "id": "202606221210197c29ec436cc446bb",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "202606221210197c29ec436cc446bb",
+  "usage": {
+    "completion_tokens": 111,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 4875,
+    "prompt_tokens_details": {
+      "cached_tokens": 6
+    },
+    "total_tokens": 4986
+  }
+}

@@ -1,0 +1,733 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   AURA LIVING — GLOBAL DESIGN SYSTEM
+   All design tokens live here as CSS custom properties.
+   No inline styles are permitted in components — use these globals only.
+   ========================================================================== */
+
+@theme {
+  /* ---- Brand Palette (Ink Gold IG-1) ---- */
+  --color-ink-950: #080808;
+  --color-ink-900: #0e0e0e;
+  --color-ink-800: #161616;
+  --color-ink-700: #1f1f1f;
+  --color-ink-600: #2a2a2a;
+  --color-ink-500: #3a3a3a;
+  --color-ink-400: #5a5a5a;
+  --color-ink-300: #8a8a8a;
+  --color-ink-200: #b8b8b8;
+  --color-ink-100: #e4e4e4;
+  --color-ink-50: #f6f6f6;
+
+  --color-gold-50: #fbf7ec;
+  --color-gold-100: #f5ecd0;
+  --color-gold-200: #ecd9a0;
+  --color-gold-300: #e0c274;
+  --color-gold-400: #c9a84c; /* Primary gold */
+  --color-gold-500: #b8933a;
+  --color-gold-600: #9a7a2e;
+  --color-gold-700: #7a6024;
+  --color-gold-800: #5c481c;
+  --color-gold-900: #3d3014;
+
+  --color-paper: #ffffff;
+  --color-paper-warm: #fdfaf3;
+  --color-paper-cream: #f7f1e3;
+
+  --color-success: #2f7d4f;
+  --color-warning: #c97a1c;
+  --color-danger: #b03434;
+  --color-info: #2c5d8a;
+
+  /* ---- Typography ---- */
+  --font-display: "Fraunces", "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+
+  /* ---- Spacing (8px base grid) ---- */
+  --space-xxs: 0.25rem;  /* 4px */
+  --space-xs: 0.5rem;    /* 8px */
+  --space-sm: 1rem;      /* 16px */
+  --space-md: 1.5rem;    /* 24px */
+  --space-lg: 2rem;      /* 32px */
+  --space-xl: 3rem;      /* 48px */
+  --space-2xl: 4rem;     /* 64px */
+  --space-3xl: 6rem;     /* 96px */
+  --space-4xl: 8rem;     /* 128px */
+
+  /* ---- Container widths (used by .container-* classes below; do not
+       define as --container-* or Tailwind's max-w-* utilities will be
+       overridden unintentionally) ---- */
+  --page-width-xs: 32rem;
+  --page-width-sm: 40rem;
+  --page-width-md: 56rem;
+  --page-width-lg: 72rem;
+  --page-width-xl: 80rem;
+  --page-width-2xl: 96rem;
+
+  /* ---- Radii ---- */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* ---- Easing curves ---- */
+  --ease-aura-living: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.45, 0, 0.15, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-back-gentle: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+  /* ---- Animation durations ---- */
+  --duration-instant: 80ms;
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  --duration-cinematic: 900ms;
+
+  /* ---- Z-index scale (9 layers per architecture plan Ch.23) ---- */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-toast: 1600;
+  --z-tooltip: 1700;
+  --z-max: 9999;
+
+  /* ---- Shadows (warm, gold-tinted) ---- */
+  --shadow-xs: 0 1px 2px rgba(14, 14, 14, 0.06);
+  --shadow-sm: 0 2px 4px rgba(14, 14, 14, 0.08), 0 1px 2px rgba(14, 14, 14, 0.04);
+  --shadow-md: 0 4px 12px rgba(14, 14, 14, 0.10), 0 2px 4px rgba(14, 14, 14, 0.06);
+  --shadow-lg: 0 8px 24px rgba(14, 14, 14, 0.12), 0 4px 8px rgba(14, 14, 14, 0.08);
+  --shadow-xl: 0 16px 48px rgba(14, 14, 14, 0.16), 0 8px 16px rgba(14, 14, 14, 0.10);
+  --shadow-2xl: 0 32px 80px rgba(14, 14, 14, 0.22), 0 16px 32px rgba(14, 14, 14, 0.14);
+  --shadow-gold: 0 8px 32px rgba(201, 168, 76, 0.28);
+  --shadow-gold-lg: 0 16px 48px rgba(201, 168, 76, 0.36);
+
+  /* ---- Breakpoints (as CSS custom properties per Ch.23) ---- */
+  --bp-sm: 36rem;   /* 576px */
+  --bp-md: 48rem;   /* 768px */
+  --bp-lg: 64rem;   /* 1024px */
+  --bp-xl: 80rem;   /* 1280px */
+  --bp-2xl: 96rem;  /* 1536px */
+}
+
+/* ==========================================================================
+   BASE RESET & GLOBAL ELEMENT STYLES
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--color-ink-200);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -moz-tab-size: 4;
+    tab-size: 4;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-ink-900);
+    color: var(--color-ink-50);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.625;
+    letter-spacing: -0.005em;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--color-paper);
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  a {
+    color: var(--color-gold-400);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-aura-living);
+  }
+  a:hover { color: var(--color-gold-300); }
+
+  button { font-family: inherit; cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  input, button, textarea, select {
+    font: inherit;
+    color: inherit;
+  }
+
+  ::selection {
+    background-color: var(--color-gold-400);
+    color: var(--color-ink-900);
+  }
+
+  /* Custom focus ring for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--color-ink-900); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-600);
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-ink-900);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-gold-700); }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   COMPONENT UTILITY CLASSES (Global, reusable, no inline styles)
+   ========================================================================== */
+
+@layer components {
+
+  /* ---- Layout primitives ---- */
+  .container-page {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--space-sm);
+    max-width: var(--page-width-xl);
+  }
+  @media (min-width: 48rem) {
+    .container-page { padding-inline: var(--space-md); }
+  }
+  @media (min-width: 64rem) {
+    .container-page { padding-inline: var(--space-lg); }
+  }
+
+  .container-narrow {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--space-sm);
+    max-width: var(--page-width-md);
+  }
+
+  .container-wide {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--space-sm);
+    max-width: var(--page-width-2xl);
+  }
+
+  /* ---- Section spacing ---- */
+  .section-base {
+    padding-block: var(--space-2xl);
+  }
+  @media (min-width: 64rem) {
+    .section-base { padding-block: var(--space-3xl); }
+  }
+  @media (min-width: 80rem) {
+    .section-base { padding-block: var(--space-4xl); }
+  }
+
+  .section-tight {
+    padding-block: var(--space-xl);
+  }
+  @media (min-width: 64rem) {
+    .section-tight { padding-block: var(--space-2xl); }
+  }
+
+  /* ---- Brand surfaces ---- */
+  .surface-ink {
+    background-color: var(--color-ink-900);
+    color: var(--color-ink-50);
+  }
+  .surface-ink-elevated {
+    background-color: var(--color-ink-800);
+    color: var(--color-ink-50);
+  }
+  .surface-ink-raised {
+    background-color: var(--color-ink-700);
+    color: var(--color-ink-50);
+  }
+  .surface-paper {
+    background-color: var(--color-paper);
+    color: var(--color-ink-900);
+  }
+  .surface-paper-warm {
+    background-color: var(--color-paper-warm);
+    color: var(--color-ink-900);
+  }
+  .surface-gold {
+    background-color: var(--color-gold-400);
+    color: var(--color-ink-900);
+  }
+  .surface-gold-deep {
+    background: linear-gradient(135deg, var(--color-gold-500) 0%, var(--color-gold-400) 50%, var(--color-gold-300) 100%);
+    color: var(--color-ink-900);
+  }
+  .surface-hero {
+    background:
+      radial-gradient(ellipse at top, rgba(201, 168, 76, 0.08) 0%, transparent 60%),
+      linear-gradient(180deg, var(--color-ink-950) 0%, var(--color-ink-900) 100%);
+  }
+
+  /* ---- Brand text ---- */
+  .text-display-1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 1rem + 5vw, 5.5rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+  .text-display-2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 0.75rem + 4vw, 4rem);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
+  .text-display-3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 0.75rem + 2.5vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .text-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-gold-400);
+  }
+  .text-eyebrow-light {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-ink-300);
+  }
+  .text-lead {
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-ink-200);
+  }
+  .text-gold { color: var(--color-gold-400); }
+  .text-gold-light { color: var(--color-gold-200); }
+  .text-muted { color: var(--color-ink-300); }
+  .text-on-gold { color: var(--color-ink-900); }
+
+  /* ---- Buttons ---- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-sm);
+    transition:
+      background-color var(--duration-fast) var(--ease-aura-living),
+      color var(--duration-fast) var(--ease-aura-living),
+      border-color var(--duration-fast) var(--ease-aura-living),
+      transform var(--duration-fast) var(--ease-aura-living),
+      box-shadow var(--duration-fast) var(--ease-aura-living);
+    white-space: nowrap;
+    user-select: none;
+    border: 1px solid transparent;
+  }
+  .btn:active { transform: translateY(1px); }
+
+  .btn-primary {
+    background-color: var(--color-gold-400);
+    color: var(--color-ink-900);
+    border-color: var(--color-gold-400);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-gold-300);
+    border-color: var(--color-gold-300);
+    box-shadow: var(--shadow-gold);
+    color: var(--color-ink-900);
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--color-paper);
+    border-color: var(--color-ink-500);
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-gold-400);
+    color: var(--color-gold-400);
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-ink-100);
+    border-color: transparent;
+  }
+  .btn-ghost:hover {
+    background-color: var(--color-ink-700);
+    color: var(--color-paper);
+  }
+
+  .btn-outline-gold {
+    background-color: transparent;
+    color: var(--color-gold-400);
+    border-color: var(--color-gold-400);
+  }
+  .btn-outline-gold:hover {
+    background-color: var(--color-gold-400);
+    color: var(--color-ink-900);
+  }
+
+  .btn-lg {
+    padding: var(--space-md) var(--space-xl);
+    font-size: 1rem;
+  }
+  .btn-sm {
+    padding: var(--space-xxs) var(--space-sm);
+    font-size: 0.8125rem;
+  }
+  .btn-block { width: 100%; }
+
+  /* ---- Cards ---- */
+  .card {
+    background-color: var(--color-ink-800);
+    border: 1px solid var(--color-ink-700);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition:
+      border-color var(--duration-base) var(--ease-aura-living),
+      transform var(--duration-base) var(--ease-aura-living),
+      box-shadow var(--duration-base) var(--ease-aura-living);
+  }
+  .card-hover:hover {
+    border-color: var(--color-gold-700);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card-paper {
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-ink-100);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  /* ---- Dividers ---- */
+  .divider-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-gold-400), transparent);
+    border: 0;
+  }
+  .divider-ink {
+    height: 1px;
+    background-color: var(--color-ink-700);
+    border: 0;
+  }
+
+  /* ---- Pills & badges ---- */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xxs);
+    padding: var(--space-xxs) var(--space-xs);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: var(--radius-full);
+    line-height: 1;
+  }
+  .pill-gold {
+    background-color: var(--color-gold-400);
+    color: var(--color-ink-900);
+  }
+  .pill-gold-soft {
+    background-color: rgba(201, 168, 76, 0.14);
+    color: var(--color-gold-300);
+    border: 1px solid rgba(201, 168, 76, 0.28);
+  }
+  .pill-outline {
+    background-color: transparent;
+    color: var(--color-ink-100);
+    border: 1px solid var(--color-ink-500);
+  }
+  .pill-sale {
+    background-color: var(--color-danger);
+    color: var(--color-paper);
+  }
+  .pill-new {
+    background-color: var(--color-success);
+    color: var(--color-paper);
+  }
+
+  /* ---- Inputs ---- */
+  .input-base {
+    width: 100%;
+    background-color: var(--color-ink-800);
+    color: var(--color-ink-50);
+    border: 1px solid var(--color-ink-600);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.9375rem;
+    transition: border-color var(--duration-fast) var(--ease-aura-living), box-shadow var(--duration-fast) var(--ease-aura-living);
+  }
+  .input-base::placeholder { color: var(--color-ink-400); }
+  .input-base:focus {
+    outline: none;
+    border-color: var(--color-gold-400);
+    box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.18);
+  }
+
+  /* ---- Link with underline animation ---- */
+  .link-underline {
+    position: relative;
+    display: inline-block;
+    color: inherit;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--duration-base) var(--ease-aura-living);
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* ---- Decorative gold rule ---- */
+  .rule-gold {
+    display: inline-block;
+    width: 48px;
+    height: 1px;
+    background-color: var(--color-gold-400);
+    vertical-align: middle;
+  }
+
+  /* ---- Image hover zoom wrapper ---- */
+  .img-zoom {
+    overflow: hidden;
+    display: block;
+  }
+  .img-zoom > img {
+    transition: transform var(--duration-slower) var(--ease-aura-living);
+    will-change: transform;
+  }
+  .img-zoom:hover > img { transform: scale(1.06); }
+
+  /* ---- Cart drawer free-shipping progress fill ---- */
+  .cart-progress-fill {
+    width: var(--cart-progress, 0%);
+  }
+
+  /* ---- Skeleton shimmer ---- */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-ink-800) 0%,
+      var(--color-ink-700) 50%,
+      var(--color-ink-800) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+  }
+  @keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ---- Glass morphism (for sticky header on scroll) ---- */
+  .glass-dark {
+    background-color: rgba(8, 8, 8, 0.72);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+
+  /* ---- WhatsApp FAB pulse ---- */
+  .pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55);
+    animation: pulse-ring 2.4s var(--ease-out-quart) infinite;
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+    70% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+  }
+
+  /* ---- Marquee ---- */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    gap: var(--space-xl);
+  }
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-xl);
+    min-width: 100%;
+    animation: marquee-scroll 32s linear infinite;
+  }
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* ---- Aspect ratios ---- */
+  .aspect-product {
+    aspect-ratio: 4 / 5;
+  }
+  .aspect-square-card {
+    aspect-ratio: 1 / 1;
+  }
+  .aspect-landscape {
+    aspect-ratio: 16 / 9;
+  }
+  .aspect-portrait {
+    aspect-ratio: 3 / 4;
+  }
+
+  /* ---- Grid utilities ---- */
+  .grid-products {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+  @media (min-width: 48rem) {
+    .grid-products {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+  }
+  @media (min-width: 64rem) {
+    .grid-products {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+
+  /* ---- Sticky footer helper ---- */
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .app-main {
+    flex: 1 1 auto;
+  }
+  .app-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+
+  /* ---- Safe area insets (mobile) ---- */
+  .safe-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ---- Skip link ---- */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: var(--z-max);
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--color-gold-400);
+    color: var(--color-ink-900);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+  }
+  .skip-link:focus {
+    left: var(--space-sm);
+    top: var(--space-sm);
+  }
+
+  /* ---- Animation utility: fade-in-up (used as fallback when JS animations disabled) ---- */
+  .anim-fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity var(--duration-slower) var(--ease-aura-living),
+      transform var(--duration-slower) var(--ease-aura-living);
+  }
+  .anim-fade-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- Hide on no-JS / reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+    .pulse-ring { animation: none; }
+    .skeleton { animation: none; }
+    .anim-fade-up { opacity: 1; transform: none; }
+  }
+}
+
+/* ==========================================================================
+   FONT IMPORTS — Google Fonts (Fraunces + Inter)
+   Loaded via next/font in layout.tsx for production optimization.
+   This file declares fallback font stacks only.
+   ========================================================================== */

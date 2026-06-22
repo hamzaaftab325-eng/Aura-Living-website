@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. Visible sections: Hero (with headline, CTA buttons, trust badges), Browse by Category (Lamps/Plants/Candles), Curated Selection (featured products).  \n2. Product/category images: All visible images (lamp, plant, candle, product cards) load correctly—no broken/empty placeholders.  \n3. Layout balance: Content blocks (hero, category, curated) are well-sized, with consistent spacing; no overly narrow or stretched elements.  \n4. Aesthetic consistency: Gold/black premium theme is consistent (dark background, gold accents, clean typography).  \n5. Visual defects: None—no overlapping, broken layout, missing text, white voids, or misaligned content.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1782101418,
+  "id": "2026062212101168da23592d8f4c18",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "2026062212101168da23592d8f4c18",
+  "usage": {
+    "completion_tokens": 147,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 4875,
+    "prompt_tokens_details": {
+      "cached_tokens": 6
+    },
+    "total_tokens": 5022
+  }
+}
