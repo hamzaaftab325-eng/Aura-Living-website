@@ -1,4 +1,4 @@
-// AURELIA Plan — Content Part 4: Page-by-Page Blueprint (Chapter 7)
+// Aura Living Plan — Content Part 4: Page-by-Page Blueprint (Chapter 7)
 const H = require("./aurelia-plan.js");
 const { h1, h2, h3, p, pr, bullet, bulletRich, spacer, divider, codeBlock, caption, dataTable, callout } = H;
 
@@ -6,11 +6,11 @@ function chapter7() {
   return [
     h1("7. Page-by-Page Blueprint"),
 
-    p("This chapter is the heart of the document. Every frontend route in AURELIA is specified here in enough detail that a developer can implement it without further design input. For each page, the specification includes: the route and its purpose, the layout and key sections above the fold and below, the components used, the animations applied, the SEO metadata, the data dependencies (with a note on whether they are static, ISR, or dynamic), the performance budget, and any page-specific UX considerations. Pages are ordered by their importance to the customer journey, not alphabetically."),
+    p("This chapter is the heart of the document. Every frontend route in Aura Living is specified here in enough detail that a developer can implement it without further design input. For each page, the specification includes: the route and its purpose, the layout and key sections above the fold and below, the components used, the animations applied, the SEO metadata, the data dependencies (with a note on whether they are static, ISR, or dynamic), the performance budget, and any page-specific UX considerations. Pages are ordered by their importance to the customer journey, not alphabetically."),
 
     h2("7.1 Home Page (/)"),
 
-    p("The homepage is the single most important page in AURELIA. It must communicate the brand promise in under five seconds, surface the three product categories within one scroll, and provide clear paths to shop, learn, and contact. The homepage is the only page where the design takes liberty with the standard grid; subsequent pages return to the disciplined grid system."),
+    p("The homepage is the single most important page in Aura Living. It must communicate the brand promise in under five seconds, surface the three product categories within one scroll, and provide clear paths to shop, learn, and contact. The homepage is the only page where the design takes liberty with the standard grid; subsequent pages return to the disciplined grid system."),
 
     h3("7.1.1 Above the Fold"),
 
@@ -20,7 +20,7 @@ function chapter7() {
 
     p("The homepage contains six sections below the fold, each designed to be a complete visual unit that fits on a single mobile screen. First, the category tiles: three full-width stacked images on mobile (or three-column on desktop), each showing a representative product from lamps, plants, and candles, with a hover effect that zooms the image slightly and reveals the category name. Second, the featured collection: a pinned section where a curated collection's image stays fixed while product cards scroll past it (desktop only; mobile uses a horizontal swipe carousel). Third, the bestsellers grid: a four-column desktop / two-column mobile grid of the top eight products, with reveal-on-scroll stagger and a quick-add-to-cart button on hover."),
 
-    p("Fourth, the editorial banner: a full-bleed image with overlay text introducing the current season's story (e.g., \"The Monsoon Edit\"), linking to the relevant collection. Fifth, the testimonials: a horizontal-scrolling strip of customer reviews with star ratings, names, and cities (\"Ayesha from Karachi\"), with a subtle infinite marquee on desktop and swipe-on-mobile. Sixth, the newsletter signup: a centered form with a single email input and a gold subscribe button, with copy framing it as joining the AURELIA community rather than a generic \"subscribe for updates.\""),
+    p("Fourth, the editorial banner: a full-bleed image with overlay text introducing the current season's story (e.g., \"The Monsoon Edit\"), linking to the relevant collection. Fifth, the testimonials: a horizontal-scrolling strip of customer reviews with star ratings, names, and cities (\"Ayesha from Karachi\"), with a subtle infinite marquee on desktop and swipe-on-mobile. Sixth, the newsletter signup: a centered form with a single email input and a gold subscribe button, with copy framing it as joining the Aura Living community rather than a generic \"subscribe for updates.\""),
 
     h3("7.1.3 Animation and Performance"),
 
@@ -28,7 +28,7 @@ function chapter7() {
 
     h2("7.2 Shop / Product Listing Page (/shop, /shop/[category])"),
 
-    p("The product listing page (PLP) is where customers browse the catalogue. It must balance two competing demands: showing as many products as possible per screen (high information density) and giving each product enough space to feel premium (low information density). AURELIA resolves this with a four-column desktop grid (16px gap) collapsing to two columns on mobile (8px gap), with each card showing the product image, name, price, and a quick-add-to-cart button that appears on hover (desktop) or always visible (mobile)."),
+    p("The product listing page (PLP) is where customers browse the catalogue. It must balance two competing demands: showing as many products as possible per screen (high information density) and giving each product enough space to feel premium (low information density). Aura Living resolves this with a four-column desktop grid (16px gap) collapsing to two columns on mobile (8px gap), with each card showing the product image, name, price, and a quick-add-to-cart button that appears on hover (desktop) or always visible (mobile)."),
 
     h3("7.2.1 Filter and Sort Bar"),
 
@@ -36,7 +36,7 @@ function chapter7() {
 
     h3("7.2.2 Product Card Specification"),
 
-    p("The product card is the most reused component in AURELIA. Its specification is therefore critical. The card has a fixed aspect-ratio image (4:5 portrait, the standard for fashion and decor photography), the product name in Fraunces h4, the price in Inter with the PKR currency formatted via Intl.NumberFormat('ur-PK'), and a quick-add button that appears as a gold-filled bar at the bottom of the card on hover (desktop) or as a small persistent button (mobile). Out-of-stock products show a muted \"Sold Out\" overlay and disable the add button. The card has a subtle border that becomes the brand gold on hover, and the image scales to 1.05x with a 400ms ease."),
+    p("The product card is the most reused component in Aura Living. Its specification is therefore critical. The card has a fixed aspect-ratio image (4:5 portrait, the standard for fashion and decor photography), the product name in Fraunces h4, the price in Inter with the PKR currency formatted via Intl.NumberFormat('ur-PK'), and a quick-add button that appears as a gold-filled bar at the bottom of the card on hover (desktop) or as a small persistent button (mobile). Out-of-stock products show a muted \"Sold Out\" overlay and disable the add button. The card has a subtle border that becomes the brand gold on hover, and the image scales to 1.05x with a 400ms ease."),
 
     h3("7.2.3 Empty and Loading States"),
 
@@ -44,7 +44,7 @@ function chapter7() {
 
     h2("7.3 Product Detail Page (/product/[slug])"),
 
-    p("The product detail page (PDP) is where the customer makes the purchase decision. It must answer every question the customer has about the product (What does it look like? What is it made of? How big is it? How do I care for it? What does it cost? When will it arrive?) without overwhelming them. AURELIA uses a two-column layout on desktop (gallery left, info right) collapsing to stacked sections on mobile."),
+    p("The product detail page (PDP) is where the customer makes the purchase decision. It must answer every question the customer has about the product (What does it look like? What is it made of? How big is it? How do I care for it? What does it cost? When will it arrive?) without overwhelming them. Aura Living uses a two-column layout on desktop (gallery left, info right) collapsing to stacked sections on mobile."),
 
     h3("7.3.1 Gallery"),
 
@@ -60,7 +60,7 @@ function chapter7() {
 
     h3("7.3.4 SEO and Structured Data"),
 
-    p("The PDP is the most SEO-critical page in AURELIA. Each PDP includes a complete Product schema.org JSON-LD with name, image, description, sku, brand, aggregateRating, offers (with price, priceCurrency PKR, availability, and seller), and a BreadcrumbList. The page title follows the pattern \"[Product Name] — AURELIA | [Category]\". The meta description is the one-line subtitle. Open Graph and Twitter Card tags use the hero image. The page is statically generated via ISR with a 300-second revalidation window."),
+    p("The PDP is the most SEO-critical page in Aura Living. Each PDP includes a complete Product schema.org JSON-LD with name, image, description, sku, brand, aggregateRating, offers (with price, priceCurrency PKR, availability, and seller), and a BreadcrumbList. The page title follows the pattern \"[Product Name] — Aura Living | [Category]\". The meta description is the one-line subtitle. Open Graph and Twitter Card tags use the hero image. The page is statically generated via ISR with a 300-second revalidation window."),
 
     codeBlock(`// lib/seo.ts — Product JSON-LD builder
 export function productJsonLd(product: Product) {
@@ -71,7 +71,7 @@ export function productJsonLd(product: Product) {
     image: product.images.map((i) => absoluteUrl(i.url)),
     description: product.subtitle,
     sku: product.sku,
-    brand: { "@type": "Brand", name: "AURELIA" },
+    brand: { "@type": "Brand", name: "Aura Living" },
     aggregateRating: product.rating ? {
       "@type": "AggregateRating",
       ratingValue: product.rating.value,
@@ -84,20 +84,20 @@ export function productJsonLd(product: Product) {
       availability: product.inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      seller: { "@type": "Organization", name: "AURELIA" },
+      seller: { "@type": "Organization", name: "Aura Living" },
     },
   };
 }`),
 
     h2("7.4 Cart Drawer and Cart Page"),
 
-    p("AURELIA uses a hybrid cart pattern: a slide-in cart drawer for quick add-to-cart feedback (right side on desktop, full-screen sheet on mobile), and a full cart page at /cart for customers who want to review or edit their cart in detail. The drawer opens automatically when an item is added (via the cart store's addItem action setting drawerOpen: true), shows the line items with quantity steppers, and offers a \"Checkout\" button. The full cart page has the same line items plus an order summary with subtotal, shipping estimate, and total, plus a \"Continue Shopping\" link."),
+    p("Aura Living uses a hybrid cart pattern: a slide-in cart drawer for quick add-to-cart feedback (right side on desktop, full-screen sheet on mobile), and a full cart page at /cart for customers who want to review or edit their cart in detail. The drawer opens automatically when an item is added (via the cart store's addItem action setting drawerOpen: true), shows the line items with quantity steppers, and offers a \"Checkout\" button. The full cart page has the same line items plus an order summary with subtotal, shipping estimate, and total, plus a \"Continue Shopping\" link."),
 
-    p("The empty cart state is intentionally delightful: a hand-drawn illustration of an empty AURELIA bag with the text \"Your cart is waiting to be filled with beautiful things\" and a prominent \"Start Shopping\" button. The empty state is shown both in the drawer (when all items are removed) and on the full cart page."),
+    p("The empty cart state is intentionally delightful: a hand-drawn illustration of an empty Aura Living bag with the text \"Your cart is waiting to be filled with beautiful things\" and a prominent \"Start Shopping\" button. The empty state is shown both in the drawer (when all items are removed) and on the full cart page."),
 
     h2("7.5 Checkout Flow (/checkout)"),
 
-    p("The checkout page is the highest-stakes page in AURELIA. Every choice here is optimised for conversion. AURELIA uses a single-page checkout (not a multi-step wizard) because Pakistani users on mobile abandon multi-step flows at higher rates, and because a single page lets the customer see the full commitment upfront. The page is laid out as a two-column desktop split (form left, order summary right with sticky positioning) collapsing to a stacked layout on mobile with the order summary collapsing into a disclosure at the top."),
+    p("The checkout page is the highest-stakes page in Aura Living. Every choice here is optimised for conversion. Aura Living uses a single-page checkout (not a multi-step wizard) because Pakistani users on mobile abandon multi-step flows at higher rates, and because a single page lets the customer see the full commitment upfront. The page is laid out as a two-column desktop split (form left, order summary right with sticky positioning) collapsing to a stacked layout on mobile with the order summary collapsing into a disclosure at the top."),
 
     h3("7.5.1 Form Sections"),
 
@@ -113,7 +113,7 @@ export function productJsonLd(product: Product) {
 
     h2("7.6 Account Authentication Pages"),
 
-    p("Account authentication uses a minimal, focused layout. The login page (/login) and registration page (/register) are deliberately simple: a centered card on a warm cream background, with the AURELIA logo at the top, the form fields (email/phone and password for login; name, email/phone, password for register), the primary action button, and a link to the alternate auth page. There is no social login in the frontend phase; that is added in the full-stack phase along with OTP-based phone login."),
+    p("Account authentication uses a minimal, focused layout. The login page (/login) and registration page (/register) are deliberately simple: a centered card on a warm cream background, with the Aura Living logo at the top, the form fields (email/phone and password for login; name, email/phone, password for register), the primary action button, and a link to the alternate auth page. There is no social login in the frontend phase; that is added in the full-stack phase along with OTP-based phone login."),
 
     p("The password field has a show/hide toggle and a real-time strength meter (only on registration). Form validation fires onBlur for each field and on submit for the whole form, with errors displayed inline below each field in the signal error colour. The forms are fully keyboard-accessible, with visible focus rings and a logical tab order."),
 
@@ -137,15 +137,15 @@ export function productJsonLd(product: Product) {
 
     h2("7.11 Lookbook (/lookbook)"),
 
-    p("The lookbook is AURELIA's editorial showcase — a grid of lifestyle photographs that link to curated product collections. The lookbook index page uses a masonry grid on desktop (alternating tall and short images) and a single-column stacked layout on mobile. Each image has a subtle hover effect (image dims, a \"Shop the Look\" button appears) and links to a lookbook detail page. The detail page presents a single editorial story with full-bleed imagery, paragraphs of curatorial copy, and embedded product cards that link to the PDP."),
+    p("The lookbook is Aura Living's editorial showcase — a grid of lifestyle photographs that link to curated product collections. The lookbook index page uses a masonry grid on desktop (alternating tall and short images) and a single-column stacked layout on mobile. Each image has a subtle hover effect (image dims, a \"Shop the Look\" button appears) and links to a lookbook detail page. The detail page presents a single editorial story with full-bleed imagery, paragraphs of curatorial copy, and embedded product cards that link to the PDP."),
 
     h2("7.12 Journal (/journal)"),
 
-    p("The journal is AURELIA's blog, covering topics like home rituals, plant care, candle-making, and interior design. Posts are written in MDX, stored in /content/journal/, and rendered via a custom MDX renderer with Tailwind Typography styling. The journal index shows a paginated grid of post cards (image, title, excerpt, date, reading time). The post page has a hero image, the title in Fraunces h1, the metadata (author, date, reading time), the MDX content, and a related-posts section at the bottom."),
+    p("The journal is Aura Living's blog, covering topics like home rituals, plant care, candle-making, and interior design. Posts are written in MDX, stored in /content/journal/, and rendered via a custom MDX renderer with Tailwind Typography styling. The journal index shows a paginated grid of post cards (image, title, excerpt, date, reading time). The post page has a hero image, the title in Fraunces h1, the metadata (author, date, reading time), the MDX content, and a related-posts section at the bottom."),
 
     h2("7.13 About Us (/about)"),
 
-    p("The about page tells the AURELIA brand story in three acts: why we started (the gap in the Pakistani market for premium curated home decor), what we believe (the brand values, expressed as five short principles), and how we work (sourcing, craft, partnerships with Pakistani artisans). The page uses full-bleed editorial imagery, parallax banners, and large Fraunces headings to feel like a magazine feature. A call-to-action at the bottom invites the customer to explore the collection."),
+    p("The about page tells the Aura Living brand story in three acts: why we started (the gap in the Pakistani market for premium curated home decor), what we believe (the brand values, expressed as five short principles), and how we work (sourcing, craft, partnerships with Pakistani artisans). The page uses full-bleed editorial imagery, parallax banners, and large Fraunces headings to feel like a magazine feature. A call-to-action at the bottom invites the customer to explore the collection."),
 
     h2("7.14 Contact (/contact)"),
 
@@ -157,11 +157,11 @@ export function productJsonLd(product: Product) {
 
     h2("7.16 Shipping and Returns (/shipping-returns)"),
 
-    p("This page documents AURELIA's shipping and returns policies in plain language. It covers: delivery methods and timeframes (with a table of cities and standard/express/same-day availability), shipping costs (free over Rs 5,000, otherwise Rs 200 standard / Rs 450 express / Rs 700 same-day), the returns window (7 days from delivery), return eligibility (unused items in original packaging), the returns process (step-by-step), and refund processing time (5-7 business days for digital payments, instant for store credit)."),
+    p("This page documents Aura Living's shipping and returns policies in plain language. It covers: delivery methods and timeframes (with a table of cities and standard/express/same-day availability), shipping costs (free over Rs 5,000, otherwise Rs 200 standard / Rs 450 express / Rs 700 same-day), the returns window (7 days from delivery), return eligibility (unused items in original packaging), the returns process (step-by-step), and refund processing time (5-7 business days for digital payments, instant for store credit)."),
 
     h2("7.17 Privacy Policy (/privacy)"),
 
-    p("The privacy policy is a standard legal page covering: what information AURELIA collects (name, contact, address, order history, browsing data via cookies), how it is used (order fulfilment, communication, analytics, marketing with consent), how it is stored (encrypted, hosted on Vercel and Supabase), user rights (access, correction, deletion), cookie usage (essential, analytics, marketing with consent), and contact for privacy enquiries. The page is set in a narrow reading column for legibility."),
+    p("The privacy policy is a standard legal page covering: what information Aura Living collects (name, contact, address, order history, browsing data via cookies), how it is used (order fulfilment, communication, analytics, marketing with consent), how it is stored (encrypted, hosted on Vercel and Supabase), user rights (access, correction, deletion), cookie usage (essential, analytics, marketing with consent), and contact for privacy enquiries. The page is set in a narrow reading column for legibility."),
 
     h2("7.18 Terms of Service (/terms)"),
 
@@ -177,7 +177,7 @@ export function productJsonLd(product: Product) {
 
     callout(
       "PAGE COUNT SUMMARY",
-      "AURELIA has 25 distinct frontend routes: 1 homepage, 3 PLP variants (shop, category, subcategory), 1 PDP, 1 collection, 1 cart, 1 checkout, 1 order confirmation, 6 account pages, 1 login, 1 register, 2 lookbook (index + detail), 2 journal (index + detail), 4 marketing (about, contact, faq, shipping-returns), 2 legal (privacy, terms), 1 search, 1 404. Each route is fully specified above."
+      "Aura Living has 25 distinct frontend routes: 1 homepage, 3 PLP variants (shop, category, subcategory), 1 PDP, 1 collection, 1 cart, 1 checkout, 1 order confirmation, 6 account pages, 1 login, 1 register, 2 lookbook (index + detail), 2 journal (index + detail), 4 marketing (about, contact, faq, shipping-returns), 2 legal (privacy, terms), 1 search, 1 404. Each route is fully specified above."
     ),
   ];
 }

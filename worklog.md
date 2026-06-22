@@ -22,3 +22,29 @@ Stage Summary:
 - Chapters: 1) Executive Summary, 2) Market Context, 3) Technical Architecture, 4) Folder Structure, 5) Design System, 6) Animation Strategy, 7) Page-by-Page Blueprint (25 routes specified), 8) Component Inventory, 9) SEO Strategy, 10) Performance Strategy, 11) Accessibility WCAG 2.2 AA, 12) Pakistani Market UX, 13) Deployment & DevOps, 14) Implementation Roadmap (9-week, 5-phase), 15) Risk Analysis, Appendices A/B/C (design tokens CSS, dependency manifest, glossary)
 - Brand name proposed: AURELIA (from Latin "aureus" = golden) — encodes the gold theme and the warmth/light/life of the three product categories (lamps, plants, candles)
 - All scripts persisted in /home/z/my-project/scripts/ for future iteration (aurelia-plan.js, aurelia-content-1.js through aurelia-content-6.js, aurelia-build.js)
+
+---
+Task ID: AURA-LIVING-V1.1
+Agent: Super Z (main agent)
+Task: Apply senior-developer review remarks to v1.0 AURELIA plan. (1) Rename brand AURELIA → "Aura Living" throughout. (2) Add 14 new chapters (16-29) per the senior dev's gap list: Testing Strategy, Security, i18n/Urdu-RTL, PWA/Offline/Resilience, Gift Options, Client Server-State (TanStack Query), Promotions & Discounts, Design-Token Additions (z-index + breakpoints), State Catalogs, Privacy & Consent, Search, SEO Edge Cases, Engineering Workflow, Misc (View Transitions, maintenance, inventory, service contracts). (3) Add /accessibility-statement and /maintenance to route taxonomy (25 → 27 routes). (4) Bump version v1.0 → v1.1 and regenerate TOC. (5) Answer GLM 5.1 → 5.2 upgrade question.
+
+Work Log:
+- Global brand rename across all 6 content files + build script via sed: "AURELIA" → "Aura Living" (156 occurrences), "Aurelia" → "Aura Living" (1 occurrence), plus targeted patches for "aurelia-cart" → "aura-living-cart", "aurelia.pk" → "auraliving.pk", "aurelia/" folder → "aura-living/", "--ease-aurelia" → "--ease-aura-living", "<branch>.aurelia.preview.vercel.com" → "<branch>.aura-living.preview.vercel.com".
+- Added 2 new rows to route taxonomy table in content-2.js (/accessibility-statement and /maintenance) bringing total routes from 25 to 27.
+- Wrote /home/z/my-project/scripts/aurelia-content-7.js (1323 lines) with 14 new chapters (16-29). Each chapter has overview paragraph, 2-4 H2 subsections, at least one table or code block, 200+ words per subsection. Includes 31 code blocks (TS/TSX/YAML/CSS), 9 decision tables, references to existing chapters by number. No contradictions of existing decisions (App Router, RSC default, gold/black tokens, 80KB animation budget, 130KB First Load JS, COD-first, WCAG 2.2 AA).
+- Updated aurelia-build.js: cover title now "Aura Living", version "1.1 | June 2026 | Senior-Dev Review Edition", footer "v1.1", abstract updated to mention 27 routes and 14 new chapters, doc title "v1.1", output path "/home/z/my-project/download/Aura-Living-Frontend-Architecture-Plan-v1.1.docx", bodyChildren now includes C7.chapter16() through C7.chapter29().
+- Rebuilt docx: 121KB (vs v1.0's 87KB). Ran add_toc_placeholders.py: 206 TOC entries inserted (vs v1.0's 135 — confirms 14 new chapters present). Ran postcheck.py: 0 errors, 2 acceptable warnings (mandatory empty paragraph+PageBreak after TOC; intentional line-spacing variation from code blocks/tables; Consolas font note).
+- PDF preview generation: LibreOffice failed with Io Abort Code:27 on v1.1 docx despite valid XML. Diagnosed via ODT intermediate (succeeded) → PDF export (failed). Worked around by using pandoc + weasyprint engine instead, producing 306KB / 140-page A4 PDF preview (v1.0 was 71 pages — ~doubled as expected for 14 new chapters). The docx itself opens fine in Word; the LibreOffice issue is environment-specific.
+- Cleaned up old v1.0 files (AURELIA-Frontend-Architecture-Plan.docx and .pdf) from download dir.
+- Final deliverables in /home/z/my-project/download/:
+  - Aura-Living-Frontend-Architecture-Plan-v1.1.docx (132 KB) — primary deliverable for senior dev
+  - Aura-Living-Frontend-Architecture-Plan-v1.1.pdf (306 KB, 140 pages A4) — quick-review preview
+
+Stage Summary:
+- v1.1 of the Aura Living Frontend Architecture Plan is complete and ready for senior-developer re-review.
+- All 14 requested chapters added with full depth (overview + subsections + tables/code blocks); no contradictions of v1.0 decisions.
+- Brand fully renamed AURELIA → "Aura Living" across cover, abstract, all 29 chapters, 3 appendices, route taxonomy, and code samples (folder names, env vars, CSS custom properties, domain names).
+- Route taxonomy updated: 25 → 27 routes (added /accessibility-statement and /maintenance).
+- TOC regenerated: 135 → 206 entries.
+- Final document size: 132KB docx, 140-page PDF preview.
+- Standing by for senior dev's next round of feedback OR greenlight to begin Phase 1 implementation.

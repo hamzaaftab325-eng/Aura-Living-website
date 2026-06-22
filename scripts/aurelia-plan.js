@@ -1,4 +1,4 @@
-// AURELIA — Premium Home Decor E-Commerce Frontend Architecture Plan
+// Aura Living — Premium Home Decor E-Commerce Frontend Architecture Plan
 // Production-grade Word document generator
 // Palette: IG-1 Ink Gold (black bg + gold accent + white text)
 // Recipe: R1 (Pure Paragraph Cover, Left-Aligned) — best for premium long titles
@@ -14,7 +14,7 @@ const fs = require("fs");
 const path = require("path");
 
 // ════════════════════════════════════════════════════════════════
-// PALETTE — IG-1 Ink Gold (extended for AURELIA brand)
+// PALETTE — IG-1 Ink Gold (extended for Aura Living brand)
 // ════════════════════════════════════════════════════════════════
 const P = {
   // IG-1 base
@@ -491,7 +491,7 @@ function arabicFooter() {
     children: [new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [
-        new TextRun({ text: "AURELIA  |  ", size: 18, color: P.body.muted, font: SANS_FONT, characterSpacing: 30 }),
+        new TextRun({ text: "Aura Living  |  ", size: 18, color: P.body.muted, font: SANS_FONT, characterSpacing: 30 }),
         new TextRun({ children: [PageNumber.CURRENT], size: 18, color: P.body.accent, font: SANS_FONT, bold: true }),
       ],
     })],
@@ -504,7 +504,7 @@ function bodyHeader() {
       alignment: AlignmentType.RIGHT,
       border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: P.accent, space: 4 } },
       children: [new TextRun({
-        text: "AURELIA  ·  Frontend Architecture Plan",
+        text: "Aura Living  ·  Frontend Architecture Plan",
         size: 18, color: P.body.muted, font: SANS_FONT, characterSpacing: 20, italics: true,
       })],
     })],

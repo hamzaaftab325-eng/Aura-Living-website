@@ -1,4 +1,4 @@
-// AURELIA Plan — Content Part 6: Pakistani UX, Deployment, Roadmap, Risks, Appendices
+// Aura Living Plan — Content Part 6: Pakistani UX, Deployment, Roadmap, Risks, Appendices
 const H = require("./aurelia-plan.js");
 const { h1, h2, h3, p, pr, bullet, bulletRich, spacer, divider, codeBlock, caption, dataTable, callout } = H;
 
@@ -9,41 +9,41 @@ function chapter12() {
   return [
     h1("12. Pakistani Market UX Considerations"),
 
-    p("A premium e-commerce experience cannot be copy-pasted from western brands and shipped to Pakistan. Pakistani consumers have specific behaviours, expectations, and constraints that must be reflected in every UX decision. This chapter catalogues the most consequential considerations and how AURELIA addresses each. These are not minor localisation tweaks; they are foundational architecture decisions that shape the entire checkout flow, the trust signals on every page, and the support model."),
+    p("A premium e-commerce experience cannot be copy-pasted from western brands and shipped to Pakistan. Pakistani consumers have specific behaviours, expectations, and constraints that must be reflected in every UX decision. This chapter catalogues the most consequential considerations and how Aura Living addresses each. These are not minor localisation tweaks; they are foundational architecture decisions that shape the entire checkout flow, the trust signals on every page, and the support model."),
 
     h2("12.1 Cash-on-Delivery-First Checkout"),
 
-    p("Cash on delivery (COD) accounts for 70 to 85 percent of Pakistani e-commerce orders, depending on category and price point. A checkout that treats COD as a second-class option — buried below card payment, requiring extra steps, or marked with disclaimers — actively reduces conversion. AURELIA's checkout defaults to COD: the COD radio button is selected by default when the checkout loads, the COD option appears first in the payment method list, and the COD copy is reassuring (\"Pay with cash when your order is delivered. Inspect before paying.\") rather than cautionary."),
+    p("Cash on delivery (COD) accounts for 70 to 85 percent of Pakistani e-commerce orders, depending on category and price point. A checkout that treats COD as a second-class option — buried below card payment, requiring extra steps, or marked with disclaimers — actively reduces conversion. Aura Living's checkout defaults to COD: the COD radio button is selected by default when the checkout loads, the COD option appears first in the payment method list, and the COD copy is reassuring (\"Pay with cash when your order is delivered. Inspect before paying.\") rather than cautionary."),
 
-    p("To mitigate the higher return rate of COD orders (customers refuse delivery, costing the seller shipping both ways), AURELIA verifies the customer's phone number via OTP before allowing COD checkout. The OTP is sent via SMS to the entered +92 number, and the customer must enter the 4-digit code to proceed. This adds 10 seconds to checkout but reduces fraudulent and accidental COD orders by an estimated 30 to 40 percent, a worthwhile trade."),
+    p("To mitigate the higher return rate of COD orders (customers refuse delivery, costing the seller shipping both ways), Aura Living verifies the customer's phone number via OTP before allowing COD checkout. The OTP is sent via SMS to the entered +92 number, and the customer must enter the 4-digit code to proceed. This adds 10 seconds to checkout but reduces fraudulent and accidental COD orders by an estimated 30 to 40 percent, a worthwhile trade."),
 
     h2("12.2 Payment Method UX"),
 
-    p("Beyond COD, AURELIA supports JazzCash, Easypaisa, card payments (via a future payment gateway), and bank transfer. Each method has its own UX pattern. JazzCash and Easypaisa use a redirect flow: the customer enters their mobile number, is redirected to the wallet's app or web flow to confirm, and is returned to AURELIA's order confirmation page. Card payments use a hosted checkout (the customer is redirected to a PCI-compliant page) — AURELIA never sees or stores card details. Bank transfer shows the AURELIA bank account details and asks the customer to email or WhatsApp the transfer receipt; the order is held in \"Pending Payment\" status until manual confirmation."),
+    p("Beyond COD, Aura Living supports JazzCash, Easypaisa, card payments (via a future payment gateway), and bank transfer. Each method has its own UX pattern. JazzCash and Easypaisa use a redirect flow: the customer enters their mobile number, is redirected to the wallet's app or web flow to confirm, and is returned to Aura Living's order confirmation page. Card payments use a hosted checkout (the customer is redirected to a PCI-compliant page) — Aura Living never sees or stores card details. Bank transfer shows the Aura Living bank account details and asks the customer to email or WhatsApp the transfer receipt; the order is held in \"Pending Payment\" status until manual confirmation."),
 
     p("Each payment method's radio button in the checkout shows the method's logo (small, 24x24 pixels), the method name, and a one-line description of the flow (\"You will be redirected to JazzCash\"). The selected method's specific fields appear below the radio group. The total amount is always visible at the bottom of the form, on the Place Order button, so the customer never loses sight of what they are committing to."),
 
     h2("12.3 Mobile-First Patterns"),
 
-    p("Pakistan is approximately 80 percent mobile traffic, and the mobile experience is therefore the primary experience, not a fallback. Every page in AURELIA is designed mobile-first: the layout, the typography, the touch targets, and the animations are all designed for a 375-pixel-wide phone with a thumb, then scaled up to desktop. Touch targets are at least 44x44 pixels (the Apple HIG minimum, also recommended by WCAG 2.2 target size). The mobile menu is a full-screen sheet with a large tap-friendly accordion. The cart drawer is a full-screen sheet on mobile (not a side drawer). The PDP gallery is a swipe carousel (not a click-through)."),
+    p("Pakistan is approximately 80 percent mobile traffic, and the mobile experience is therefore the primary experience, not a fallback. Every page in Aura Living is designed mobile-first: the layout, the typography, the touch targets, and the animations are all designed for a 375-pixel-wide phone with a thumb, then scaled up to desktop. Touch targets are at least 44x44 pixels (the Apple HIG minimum, also recommended by WCAG 2.2 target size). The mobile menu is a full-screen sheet with a large tap-friendly accordion. The cart drawer is a full-screen sheet on mobile (not a side drawer). The PDP gallery is a swipe carousel (not a click-through)."),
 
     p("Mobile-specific interaction patterns include: pull-to-refresh is disabled (it conflicts with Lenis and is rarely useful on e-commerce pages); swipe gestures are used only where they are discoverable (the PDP gallery, the testimonials carousel); the WhatsApp FAB is positioned bottom-right but lifts above the iOS Safari bottom bar; the search overlay uses the native mobile keyboard's search key rather than a custom button."),
 
     h2("12.4 WhatsApp Integration"),
 
-    p("WhatsApp is the default customer support channel in Pakistan. AURELIA integrates WhatsApp at three levels. First, a persistent floating action button (FAB) on every page, bottom-right on mobile and desktop, that opens a WhatsApp chat with a pre-filled message (\"Hi AURELIA team, I have a question about [page URL]\"). Second, a WhatsApp enquiry button on every PDP that opens a chat with a product-specific message (\"Hi, I have a question about [product name]\"). Third, a WhatsApp confirmation message after order placement (in the full-stack phase) with the order summary and tracking link."),
+    p("WhatsApp is the default customer support channel in Pakistan. Aura Living integrates WhatsApp at three levels. First, a persistent floating action button (FAB) on every page, bottom-right on mobile and desktop, that opens a WhatsApp chat with a pre-filled message (\"Hi Aura Living team, I have a question about [page URL]\"). Second, a WhatsApp enquiry button on every PDP that opens a chat with a product-specific message (\"Hi, I have a question about [product name]\"). Third, a WhatsApp confirmation message after order placement (in the full-stack phase) with the order summary and tracking link."),
 
-    p("The WhatsApp number is a single business number (+92 3XX XXXXXXX) configured for WhatsApp Business. The FAB uses the WhatsApp brand green only inside the icon (the surrounding button uses the brand gold); this respects both the WhatsApp brand guidelines and the AURELIA visual system. The FAB is hidden on the checkout page (to avoid distraction during the highest-stakes step) and reappears on the order confirmation page."),
+    p("The WhatsApp number is a single business number (+92 3XX XXXXXXX) configured for WhatsApp Business. The FAB uses the WhatsApp brand green only inside the icon (the surrounding button uses the brand gold); this respects both the WhatsApp brand guidelines and the Aura Living visual system. The FAB is hidden on the checkout page (to avoid distraction during the highest-stakes step) and reappears on the order confirmation page."),
 
     h2("12.5 Trust Signals"),
 
-    p("Pakistani online shoppers are sceptical by default. New e-commerce brands must earn trust through visible signals throughout the customer journey. AURELIA places trust signals at three touchpoints. On the homepage, a row of trust badges below the hero (\"Cash on Delivery\", \"7-Day Returns\", \"Pakistani Owned\", \"Secure Checkout\"). On every PDP, a row of trust badges below the add-to-cart button (\"COD Available\", \"7-Day Returns\", \"WhatsApp Support\", \"[N] Happy Customers\"). On the checkout page, below the Place Order button (\"Pay When You Receive\", \"7-Day Easy Returns\", \"Questions? Message Us\")."),
+    p("Pakistani online shoppers are sceptical by default. New e-commerce brands must earn trust through visible signals throughout the customer journey. Aura Living places trust signals at three touchpoints. On the homepage, a row of trust badges below the hero (\"Cash on Delivery\", \"7-Day Returns\", \"Pakistani Owned\", \"Secure Checkout\"). On every PDP, a row of trust badges below the add-to-cart button (\"COD Available\", \"7-Day Returns\", \"WhatsApp Support\", \"[N] Happy Customers\"). On the checkout page, below the Place Order button (\"Pay When You Receive\", \"7-Day Easy Returns\", \"Questions? Message Us\")."),
 
     p("Beyond badges, trust is built through customer reviews (visible on every PDP, with the customer's city for local social proof), through transparent shipping and returns policies (linked from the footer and from every PDP), through visible contact information (WhatsApp number and email in the footer and on the contact page), and through a professional visual design that signals competence and permanence."),
 
     h2("12.6 Localised Content"),
 
-    p("Content localisation goes beyond currency and units. AURELIA localises at four levels. First, currency: all prices in PKR, formatted via Intl.NumberFormat('ur-PK') as \"Rs 12,450\" (with the Rs symbol and the Pakistani thousands separator). Second, units: dimensions in centimetres (not inches), weight in kilograms, temperature in Celsius (for candle burn temperature references). Third, names and examples: customer personas, testimonials, and journal post examples use Pakistani names (Ayesha, Nida, Gohar, Bilal) and Pakistani cities (Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad). Fourth, cultural references: journal posts reference Pakistani seasons (monsoon, winter, the pre-Eid spring), Pakistani homes (apartments with terraces, joint-family living rooms), and Pakistani design traditions (brass work, kilim, block print)."),
+    p("Content localisation goes beyond currency and units. Aura Living localises at four levels. First, currency: all prices in PKR, formatted via Intl.NumberFormat('ur-PK') as \"Rs 12,450\" (with the Rs symbol and the Pakistani thousands separator). Second, units: dimensions in centimetres (not inches), weight in kilograms, temperature in Celsius (for candle burn temperature references). Third, names and examples: customer personas, testimonials, and journal post examples use Pakistani names (Ayesha, Nida, Gohar, Bilal) and Pakistani cities (Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad). Fourth, cultural references: journal posts reference Pakistani seasons (monsoon, winter, the pre-Eid spring), Pakistani homes (apartments with terraces, joint-family living rooms), and Pakistani design traditions (brass work, kilim, block print)."),
   ];
 }
 
@@ -54,7 +54,7 @@ function chapter13() {
   return [
     h1("13. Deployment & DevOps"),
 
-    p("AURELIA is deployed on Vercel, the company behind Next.js, with a deployment strategy that prioritises reliability, observability, and fast iteration. This chapter specifies the hosting, the CDN configuration, the environment management, the CI/CD pipeline, the analytics and monitoring stack, and the preview deployment workflow. The choices are deliberately conservative — Vercel is the path of least resistance for a Next.js 16 application, and the operational overhead of self-hosting or alternative platforms is not justified at AURELIA's scale."),
+    p("Aura Living is deployed on Vercel, the company behind Next.js, with a deployment strategy that prioritises reliability, observability, and fast iteration. This chapter specifies the hosting, the CDN configuration, the environment management, the CI/CD pipeline, the analytics and monitoring stack, and the preview deployment workflow. The choices are deliberately conservative — Vercel is the path of least resistance for a Next.js 16 application, and the operational overhead of self-hosting or alternative platforms is not justified at Aura Living's scale."),
 
     h2("13.1 Hosting Strategy"),
 
@@ -62,11 +62,11 @@ function chapter13() {
 
     h2("13.2 CDN Configuration"),
 
-    p("Vercel's CDN is configured with sensible defaults: static assets (JS, CSS, images, fonts) are cached at the edge with immutable, max-age=31536000 directives. ISR pages are cached at the edge until revalidation. The custom cache headers for dynamic routes are set in next.config.ts. A custom CDN header (X-Aurelia-Cache) is added to every response indicating the cache status (HIT, MISS, BYPASS) for debugging. A purge-on-deploy hook clears the edge cache for any route that has changed, ensuring new deploys are immediately visible."),
+    p("Vercel's CDN is configured with sensible defaults: static assets (JS, CSS, images, fonts) are cached at the edge with immutable, max-age=31536000 directives. ISR pages are cached at the edge until revalidation. The custom cache headers for dynamic routes are set in next.config.ts. A custom CDN header (X-Aura Living-Cache) is added to every response indicating the cache status (HIT, MISS, BYPASS) for debugging. A purge-on-deploy hook clears the edge cache for any route that has changed, ensuring new deploys are immediately visible."),
 
     h2("13.3 Environment Management"),
 
-    p("Three deployment environments are maintained: Production (the live site at aurelia.pk), Staging (the internal testing site at staging.aurelia.pk, protected by basic auth), and Preview (automatic per-PR deployments at <branch>.aurelia.preview.vercel.com). Environment variables are managed in Vercel's dashboard, with separate values for Production, Staging, and Preview. Secrets (the future Supabase service key, payment gateway keys, analytics tokens) are marked as encrypted and are never exposed to the client. A lib/env.ts module validates the presence of all required environment variables at build time and fails the build if any are missing."),
+    p("Three deployment environments are maintained: Production (the live site at auraliving.pk), Staging (the internal testing site at staging.auraliving.pk, protected by basic auth), and Preview (automatic per-PR deployments at <branch>.aura-living.preview.vercel.com). Environment variables are managed in Vercel's dashboard, with separate values for Production, Staging, and Preview. Secrets (the future Supabase service key, payment gateway keys, analytics tokens) are marked as encrypted and are never exposed to the client. A lib/env.ts module validates the presence of all required environment variables at build time and fails the build if any are missing."),
 
     h2("13.4 CI/CD Pipeline"),
 
@@ -115,11 +115,11 @@ jobs:
 
     p("Two analytics systems run in parallel. Vercel Analytics provides Real User Monitoring (RUM) of Core Web Vitals, captured from real user sessions and reported at the 75th percentile. This is the source of truth for production performance. Plausible Analytics (self-hosted on a separate Vercel project, privacy-friendly, cookieless) provides product analytics: page views, conversion funnels, traffic sources, and custom events (add-to-cart, begin-checkout, purchase). Both systems are integrated via the lib/analytics.ts module, which initialises both in the root layout and exposes a single track() function for custom events."),
 
-    p("Error monitoring is via Sentry (the free tier is sufficient at AURELIA's scale). Sentry captures both client-side errors (React render errors, unhandled promise rejections) and server-side errors (Next.js route handler exceptions, edge function failures). Errors are grouped, deduplicated, and routed to the engineering Slack channel via a webhook. Sentry's release tracking is integrated with Vercel so that regressions introduced by a specific deploy are automatically attributed."),
+    p("Error monitoring is via Sentry (the free tier is sufficient at Aura Living's scale). Sentry captures both client-side errors (React render errors, unhandled promise rejections) and server-side errors (Next.js route handler exceptions, edge function failures). Errors are grouped, deduplicated, and routed to the engineering Slack channel via a webhook. Sentry's release tracking is integrated with Vercel so that regressions introduced by a specific deploy are automatically attributed."),
 
     h2("13.6 Preview Deployments"),
 
-    p("Every PR automatically gets a preview deployment on Vercel at <branch>.aurelia.preview.vercel.com. Preview deployments are full-stack: they have their own database (a snapshot of staging for the frontend phase, a separate Supabase project in the full-stack phase) and their own environment variables. This allows designers, stakeholders, and QA to test a PR in isolation before merge. Preview deployments are linked in the PR description via Vercel's GitHub integration, and a Lighthouse audit is run against each preview on every push, with results posted as a PR comment."),
+    p("Every PR automatically gets a preview deployment on Vercel at <branch>.aura-living.preview.vercel.com. Preview deployments are full-stack: they have their own database (a snapshot of staging for the frontend phase, a separate Supabase project in the full-stack phase) and their own environment variables. This allows designers, stakeholders, and QA to test a PR in isolation before merge. Preview deployments are linked in the PR description via Vercel's GitHub integration, and a Lighthouse audit is run against each preview on every push, with results posted as a PR comment."),
   ];
 }
 
@@ -130,7 +130,7 @@ function chapter14() {
   return [
     h1("14. Implementation Roadmap"),
 
-    p("The AURELIA frontend is built in five phases over approximately nine weeks. Each phase has a clear deliverable, a clear definition of done, and a clear exit criterion. The phases are sequenced to deliver the highest-risk work first (the design system and the core page architecture) and the highest-polish work last (the animations and the performance optimisations). The roadmap assumes one full-time frontend engineer and one part-time designer; the timeline can be compressed with more resources, but the phase sequence should not be reordered."),
+    p("The Aura Living frontend is built in five phases over approximately nine weeks. Each phase has a clear deliverable, a clear definition of done, and a clear exit criterion. The phases are sequenced to deliver the highest-risk work first (the design system and the core page architecture) and the highest-polish work last (the animations and the performance optimisations). The roadmap assumes one full-time frontend engineer and one part-time designer; the timeline can be compressed with more resources, but the phase sequence should not be reordered."),
 
     h2("14.1 Phase 1: Foundation (Weeks 1-2)"),
 
@@ -146,7 +146,7 @@ function chapter14() {
 
     h2("14.3 Phase 3: Polish and Animations (Weeks 6-7)"),
 
-    p("Phase 3 adds the AURELIA signature polish: the GSAP, Framer Motion, and Lenis animations that distinguish the site. The deliverables are: the smooth scroll provider (Lenis); the parallax wrapper (GSAP ScrollTrigger); the reveal wrapper (Framer Motion); the homepage hero entrance animation; the homepage section reveals; the pinned featured collection section; the PDP gallery transitions; the cart drawer and mobile menu enter/exit animations; the magnetic button effect; the testimonial marquee; the 404 and order confirmation illustrations and animations; and the reduced-motion fallbacks for all of the above."),
+    p("Phase 3 adds the Aura Living signature polish: the GSAP, Framer Motion, and Lenis animations that distinguish the site. The deliverables are: the smooth scroll provider (Lenis); the parallax wrapper (GSAP ScrollTrigger); the reveal wrapper (Framer Motion); the homepage hero entrance animation; the homepage section reveals; the pinned featured collection section; the PDP gallery transitions; the cart drawer and mobile menu enter/exit animations; the magnetic button effect; the testimonial marquee; the 404 and order confirmation illustrations and animations; and the reduced-motion fallbacks for all of the above."),
 
     p("The exit criterion for Phase 3 is: the site feels premium and choreographed on desktop, all animations respect prefers-reduced-motion, no animation causes visible jank on a mid-range mobile device, and the Lighthouse performance score has not regressed from Phase 2."),
 
@@ -172,7 +172,7 @@ function chapter14() {
       ],
       [16, 10, 36, 38]
     ),
-    caption("Table 14.1 — AURELIA frontend implementation roadmap"),
+    caption("Table 14.1 — Aura Living frontend implementation roadmap"),
   ];
 }
 
@@ -183,7 +183,7 @@ function chapter15() {
   return [
     h1("15. Risk Analysis & Mitigations"),
 
-    p("Every project carries risk. AURELIA's frontend build carries three categories of risk: technical risks (things that might not work as expected), market risks (things that might make the site less effective than planned), and operational risks (things that might disrupt the build process). This chapter catalogues the most consequential risks in each category and specifies the mitigation. Risks are not problems to be solved now; they are scenarios to be prepared for."),
+    p("Every project carries risk. Aura Living's frontend build carries three categories of risk: technical risks (things that might not work as expected), market risks (things that might make the site less effective than planned), and operational risks (things that might disrupt the build process). This chapter catalogues the most consequential risks in each category and specifies the mitigation. Risks are not problems to be solved now; they are scenarios to be prepared for."),
 
     h2("15.1 Technical Risks"),
 
@@ -246,9 +246,9 @@ function appendices() {
   return [
     h1("Appendix A: Design Token Reference (CSS)"),
 
-    p("The complete CSS custom property definitions for the AURELIA design system. This file is the source of truth and is referenced by tailwind.config.ts to generate utility classes. These tokens should never be overridden in component code; new tokens are added here and surfaced through Tailwind."),
+    p("The complete CSS custom property definitions for the Aura Living design system. This file is the source of truth and is referenced by tailwind.config.ts to generate utility classes. These tokens should never be overridden in component code; new tokens are added here and surfaced through Tailwind."),
 
-    codeBlock(`/* app/globals.css — AURELIA design tokens */
+    codeBlock(`/* app/globals.css — Aura Living design tokens */
 @import "tailwindcss";
 
 @theme {
@@ -306,7 +306,7 @@ function appendices() {
   --shadow-lg: 0 8px 24px -4px rgba(10, 10, 10, 0.12);
 
   /* ═══ Motion ═══ */
-  --ease-aurelia: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-aura-living: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 200ms;
   --duration-base: 400ms;
   --duration-slow: 800ms;
@@ -319,7 +319,7 @@ function appendices() {
 
     h1("Appendix B: Library Versions & Dependencies"),
 
-    p("The pinned versions of every dependency in the AURELIA frontend. Versions are pinned to a minor version for predictability; patch updates are applied via Dependabot. Major version upgrades require a dedicated migration PR with full regression testing."),
+    p("The pinned versions of every dependency in the Aura Living frontend. Versions are pinned to a minor version for predictability; patch updates are applied via Dependabot. Major version upgrades require a dedicated migration PR with full regression testing."),
 
     codeBlock(`{
   "dependencies": {
@@ -370,7 +370,7 @@ function appendices() {
         ["CLS", "Cumulative Layout Shift — a Core Web Vital measuring visual stability; lower is better"],
         ["COD", "Cash on Delivery — payment method where customer pays in cash when the order is delivered"],
         ["Core Web Vitals", "Google's user-experience metrics: LCP, INP, CLS; ranking signals since 2021"],
-        ["CSR", "Client-Side Rendering — the browser renders the page from JavaScript; not used for primary routes in AURELIA"],
+        ["CSR", "Client-Side Rendering — the browser renders the page from JavaScript; not used for primary routes in Aura Living"],
         ["FAB", "Floating Action Button — a persistent circular button, e.g., the WhatsApp FAB"],
         ["Framer Motion", "Now published as 'motion'; React animation library for component-level animations"],
         ["GSAP", "GreenSock Animation Platform; the industry-standard JavaScript animation library"],
@@ -379,7 +379,7 @@ function appendices() {
         ["JSON-LD", "JavaScript Object Notation for Linked Data; the recommended format for schema.org structured data"],
         ["LCP", "Largest Contentful Paint — a Core Web Vital measuring loading performance; ≤2.5s passing"],
         ["Lenis", "A modern smooth-scroll library; the successor to @studio-freight/lenis"],
-        ["MDX", "Markdown with JSX; used for the AURELIA Journal content"],
+        ["MDX", "Markdown with JSX; used for the Aura Living Journal content"],
         ["PDP", "Product Detail Page — the page for a single product (e.g., /product/[slug])"],
         ["PLP", "Product Listing Page — a page listing multiple products (e.g., /shop, /shop/lamps)"],
         ["PPR", "Partial Prerendering — Next.js 16 feature combining static shell with dynamic content via Suspense"],
@@ -387,8 +387,8 @@ function appendices() {
         ["Schema.org", "A vocabulary of structured data types that search engines understand (Product, Article, etc.)"],
         ["shadcn/ui", "A collection of accessible React components built on Radix UI and Tailwind"],
         ["TTFB", "Time to First Byte — the time from request to first byte of response; a perf metric"],
-        ["WCAG 2.2", "Web Content Accessibility Guidelines version 2.2; AURELIA targets AA conformance"],
-        ["Zustand", "A minimal React state management library; used for AURELIA's cart and UI stores"],
+        ["WCAG 2.2", "Web Content Accessibility Guidelines version 2.2; Aura Living targets AA conformance"],
+        ["Zustand", "A minimal React state management library; used for Aura Living's cart and UI stores"],
       ],
       [22, 78]
     ),

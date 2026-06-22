@@ -1,4 +1,4 @@
-// AURELIA Plan — Main assembly script
+// Aura Living Plan — Main assembly script (v1.1)
 // Generates the final .docx by combining cover + TOC + all chapters + appendices
 
 const H = require("./aurelia-plan.js");
@@ -8,6 +8,7 @@ const C3 = require("./aurelia-content-3.js");
 const C4 = require("./aurelia-content-4.js");
 const C5 = require("./aurelia-content-5.js");
 const C6 = require("./aurelia-content-6.js");
+const C7 = require("./aurelia-content-7.js");
 
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
@@ -27,18 +28,18 @@ const path = require("path");
 // ════════════════════════════════════════════════════════════════
 const coverConfig = {
   englishLabel: "FRONTEND ARCHITECTURE PLAN",
-  title: "AURELIA",
+  title: "Aura Living",
   subtitle: "A Premium Home Decor E-Commerce Frontend Architecture Plan for the Pakistani Market",
   metaLines: [
-    "Brand: AURELIA — Light, Life, and Living Beauty",
+    "Brand: Aura Living — Light, Life, and Living Beauty",
     "Niche: Premium Home Decor (Lamps, Plants, Candles)",
     "Market: Islamic Republic of Pakistan",
     "Stack: Next.js 16 + GSAP + Framer Motion + Lenis",
     "Aesthetic: Gold and Black with Warm White Backgrounds",
-    "Version: 1.0  |  June 2026",
+    "Version: 1.1  |  June 2026  |  Senior-Dev Review Edition",
   ],
-  footerLeft: "AURELIA  ·  PREMIUM HOME DECOR",
-  footerRight: "CONFIDENTIAL  ·  v1.0",
+  footerLeft: "Aura Living  ·  PREMIUM HOME DECOR",
+  footerRight: "CONFIDENTIAL  ·  v1.1",
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -64,9 +65,11 @@ function buildFrontMatter() {
         text: "  ", size: 16,
       })],
     }),
-    p("This document is the complete frontend architecture plan for AURELIA, a premium home-decor e-commerce storefront targeting the Pakistani market. AURELIA specialises in three curated product categories — artisanal lamps, living plants, and hand-poured candles — and is positioned as the first Pakistani-owned, premium-curated home-decor brand online. The plan covers the full scope of the frontend: the technical stack (Next.js 16, TypeScript, Tailwind CSS, GSAP, Framer Motion, Lenis), the production-grade folder structure, the complete design system (gold and black palette with warm white backgrounds, fluid typography, restrained spacing), the animation strategy (parallax, scroll-triggered reveals, magnetic buttons, smooth scroll), a page-by-page blueprint for all twenty-five frontend routes, a comprehensive component inventory, the 2026 SEO strategy with schema.org structured data, the performance strategy with Core Web Vitals targets, the WCAG 2.2 AA accessibility strategy, Pakistani-specific UX patterns (cash-on-delivery-first checkout, WhatsApp integration, mobile-first design), the Vercel deployment strategy, a five-phase nine-week implementation roadmap, and a risk analysis. The full-stack implementation (Supabase database, Next.js Server Actions) will be addressed in a separate document once the frontend foundation specified here is in place."),
+    p("This document is the complete frontend architecture plan for Aura Living, a premium home-decor e-commerce storefront targeting the Pakistani market. Aura Living specialises in three curated product categories — artisanal lamps, living plants, and hand-poured candles — and is positioned as the first Pakistani-owned, premium-curated home-decor brand online. The plan covers the full scope of the frontend: the technical stack (Next.js 16, TypeScript, Tailwind CSS, GSAP, Framer Motion, Lenis), the production-grade folder structure, the complete design system (gold and black palette with warm white backgrounds, fluid typography, restrained spacing), the animation strategy (parallax, scroll-triggered reveals, magnetic buttons, smooth scroll), a page-by-page blueprint for all twenty-seven frontend routes, a comprehensive component inventory, the 2026 SEO strategy with schema.org structured data, the performance strategy with Core Web Vitals targets, the WCAG 2.2 AA accessibility strategy, Pakistani-specific UX patterns (cash-on-delivery-first checkout, WhatsApp integration, mobile-first design), the Vercel deployment strategy, a five-phase nine-week implementation roadmap, and a risk analysis."),
 
-    p("This document is intended for the engineering team building AURELIA and for stakeholders reviewing the technical direction. It is detailed enough to enable implementation without further design input and structured to allow non-sequential review of specific concerns. All decisions are grounded in 2026 web standards research and in the specific realities of the Pakistani e-commerce market."),
+    p("Version 1.1 extends the original plan with fourteen new chapters (16 through 29) added in response to senior-developer review: a testing strategy with Vitest, React Testing Library, Playwright and MSW; a security chapter covering CSP, security headers, MDX sanitisation, and COD-OTP abuse prevention; an internationalisation chapter with Urdu and RTL support; a PWA and resilience chapter with service-worker caching and offline fallback; gift options at checkout; a TanStack Query-based client server-state layer; promotions and discounts UX; z-index and breakpoint design-token additions; a state catalog for empty, loading, and error surfaces; a privacy and consent chapter with a cookie-consent UI and analytics event taxonomy; a two-phase search implementation; SEO edge cases including filtered-PLP canonicalisation and an accessibility statement page; an engineering workflow chapter with Git conventions, PR templates, ADRs, and feature flags; and a miscellaneous chapter covering View Transitions API page transitions, a maintenance page, back-in-stock handling, and service-interface contracts. The full-stack implementation (Supabase database, Next.js Server Actions) will be addressed in a separate document once the frontend foundation specified here is in place."),
+
+    p("This document is intended for the engineering team building Aura Living and for stakeholders reviewing the technical direction. It is detailed enough to enable implementation without further design input and structured to allow non-sequential review of specific concerns. All decisions are grounded in 2026 web standards research and in the specific realities of the Pakistani e-commerce market."),
 
     spacer(360),
 
@@ -126,13 +129,27 @@ const bodyChildren = [
   ...C6.chapter13(),
   ...C6.chapter14(),
   ...C6.chapter15(),
+  ...C7.chapter16(),
+  ...C7.chapter17(),
+  ...C7.chapter18(),
+  ...C7.chapter19(),
+  ...C7.chapter20(),
+  ...C7.chapter21(),
+  ...C7.chapter22(),
+  ...C7.chapter23(),
+  ...C7.chapter24(),
+  ...C7.chapter25(),
+  ...C7.chapter26(),
+  ...C7.chapter27(),
+  ...C7.chapter28(),
+  ...C7.chapter29(),
   ...C6.appendices(),
 ];
 
 const doc = new Document({
-  creator: "AURELIA Engineering",
-  title: "AURELIA — Frontend Architecture Plan v1.0",
-  description: "Premium Home Decor E-Commerce Frontend Architecture Plan for the Pakistani Market",
+  creator: "Aura Living Engineering",
+  title: "Aura Living — Frontend Architecture Plan v1.1",
+  description: "Premium Home Decor E-Commerce Frontend Architecture Plan for the Pakistani Market (v1.1 — Senior-Dev Review Edition)",
   styles: {
     default: {
       document: {
@@ -200,7 +217,7 @@ const doc = new Document({
 // ════════════════════════════════════════════════════════════════
 // PACK AND WRITE
 // ════════════════════════════════════════════════════════════════
-const outputPath = "/home/z/my-project/download/AURELIA-Frontend-Architecture-Plan.docx";
+const outputPath = "/home/z/my-project/download/Aura-Living-Frontend-Architecture-Plan-v1.1.docx";
 const outputDir = path.dirname(outputPath);
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
