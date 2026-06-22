@@ -5,19 +5,17 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product/product-card";
 import { getFeaturedProducts } from "@/data/catalogue";
-import { useInView } from "@/hooks/use-in-view";
 
 /**
  * FeaturedProducts — six-up grid of the featured catalogue.
  * Includes the section header, eyebrow, and a CTA to the full PLP.
+ * (Each ProductCard handles its own scroll-reveal animation via useInView.)
  */
 export function FeaturedProducts() {
-  const [ref, inView] = useInView<HTMLDivElement>({ triggerOnce: true, threshold: 0.1 });
   const products = getFeaturedProducts(6);
 
   return (
     <section
-      ref={ref}
       className="section-base surface-ink-elevated"
       aria-labelledby="featured-heading"
     >
