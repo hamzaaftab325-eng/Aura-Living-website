@@ -1,0 +1,857 @@
+     1→# 2026 Web Standards & Production-Grade E-Commerce Architecture
+     2→### A Research Report for a Premium Home-Decor Store (Lamps · Plants · Candles) — Pakistan
+     3→**Stack:** Next.js 16 · TypeScript · Tailwind CSS · GSAP · Framer Motion (Motion) · Lenis
+     4→**Theme:** Gold + Black + White
+     5→
+     6→---
+     7→
+     8→## Executive Summary
+     9→
+    10→This report synthesizes current 2026 web standards across ten domains to plan a production-grade, premium home-decor e-commerce storefront for the Pakistani market. The defining shifts since 2024 are: (1) **Next.js 16 made Partial Prerendering (PPR) stable** via Cache Components, ending the static-vs-dynamic tradeoff; (2) **Interaction to Next Paint (INP)** is now the hardest Core Web Vital — 43% of sites still fail its 200 ms threshold; (3) **WCAG 2.2** is now a legal deadline (e-commerce compliance pressure by April 2026); and (4) for Pakistan, **Cash on Delivery (COD) still drives 80–85% of orders**, making trust-first UX more important than payment-gateway polish. Below is a section-by-section blueprint with concrete code patterns, library versions, numeric thresholds, named brands, and citations.
+    11→
+    12→---
+    13→
+    14→## 1. Next.js 16 Production Architecture (2026 Standards)
+    15→
+    16→Next.js 16 shipped in **October 2025** on the latest React Canary (React 19.2 features), with the App Router as the default and only recommended router. The dev server is reportedly ~400% faster via Turbopack stabilization.
+    17→
+    18→### 1.1 Server Components vs Client Components split
+    19→
+    20→The 2026 default is **Server Components (RSC) everywhere; Client Components only at the leaf**. Rules of thumb:
+    21→
+    22→- **Server by default** — data fetching, DB/CMS access, SEO content, static markup, heavy dependencies (e.g. a markdown parser).
+    23→- **Client only when needed** — `"use client"` is required for: event handlers (`onClick`), `useState`/`useReducer`/`useEffect`, browser APIs (`window`, `IntersectionObserver`), and animation libraries (GSAP, Motion, Lenis).
+    24→- **Push the client boundary down** — a page can be a Server Component that imports a small Client Component for the interactive island. Example: product page is a server component; only the "Add to Cart" button + quantity stepper + image gallery are client islands.
+    25→
+    26→Anti-pattern to avoid: wrapping the entire `<body>` in a Client Component (this kills RSC streaming benefits and bloats the JS bundle). For this project, **Lenis must wrap children in a Client Component**, which is an accepted tradeoff — see §2.
+    27→
+    28→### 1.2 Recommended folder structure for large e-commerce apps
+    29→
+    30→Next.js 16 docs and community guides (MakerKit, Feature-Sliced Design) converge on a **route-group + feature-based** hybrid. See full structure in §10.
+    31→
+    32→### 1.3 Layouts, templates, loading.tsx, error.tsx
+    33→
+    34→- **`layout.tsx`** — persists across navigations (state preserved). Use for `<html>`, `<body>`, global nav, footer, cart drawer provider, Lenis wrapper. Root layout is a Server Component.
+    35→- **`template.tsx`** — re-renders on every navigation (state reset). Use for per-route enter animations (GSAP/Motion) where you want a fresh mount each navigation.
+    36→- **`loading.tsx`** — streaming fallback shown while the segment loads. Keep it as a non-animated skeleton (or minimal Motion) to avoid CLS. Reserves space with explicit dimensions.
+    37→- **`error.tsx`** — must be a Client Component (`"use client"`). Catches segment errors; expose a `reset()` button. Pair with `global-error.tsx` at the root to catch layout-level errors.
+    38→
+    39→### 1.4 Streaming and Suspense patterns
+    40→
+    41→PPR makes `<Suspense>` boundaries the primary tool for progressive rendering. Pattern for a product page:
+    42→
+    43→```tsx
+    44→// app/product/[slug]/page.tsx  (Server Component)
+    45→import { Suspense } from "react";
+    46→import { ProductHeader } from "@/features/product/product-header";
+    47→import { PricingSection } from "@/features/product/pricing-section";
+    48→import { Reviews } from "@/features/product/reviews";
+    49→
+    50→export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+    51→  const { slug } = await params;
+    52→  const product = await getProduct(slug);          // static-ish, cached
+    53→
+    54→  return (
+    55→    <main>
+    56→      <ProductHeader product={product} />           {/* in the static shell */}
+    57→      <Suspense fallback={<PricingSkeleton />}>
+    58→        <PricingSection slug={slug} />              {/* streamed: live price/inventory */}
+    59→      </Suspense>
+    60→      <Suspense fallback={<ReviewsSkeleton />}>
+    61→        <Reviews slug={slug} />                     {/* streamed */}
+    62→      </Suspense>
+    63→    </main>
+    64→  );
+    65→}
+    66→```
+    67→
+    68→At build time Next.js renders the static shell and injects skeleton placeholders; at request time the dynamic `<Suspense>` children stream in over a single HTTP response — no client fetch waterfall, no second round trip.
+    69→
+    70→### 1.5 Partial Prerendering (PPR) status in 2026
+    71→
+    72→**PPR is stable as of Next.js 16 (October 2025).** It was experimental in 14, refined in 15, and shipped stable via the **Cache Components** model. The old `experimental.ppr` flag was removed; opting into dynamic streaming is now expressed through Suspense boundaries + the `cacheComponents` / per-segment `dynamicIO` configuration. Key implications for e-commerce:
+    73→
+    74→- **Product pages** — title, images, description are the static shell (sub-100 ms LCP from the edge); price, stock, and personalized recommendations stream in.
+    75→- **Cart/Account** — fully dynamic segments (use `connection()` / cookies), not PPR'd.
+    76→- **Category/PLP** — static shell + streamed faceted filter results.
+    77→
+    78→Enable via `next.config.ts`:
+    79→```ts
+    80→const nextConfig = { experimental: { ppr: "incremental" } }; // opt routes in progressively
+    81→```
+    82→
+    83→### 1.6 Metadata API for SEO
+    84→
+    85→Use the file-based `metadata` / `generateMetadata` API (do not hand-roll `<head>`). Per-route:
+    86→
+    87→```ts
+    88→export async function generateMetadata({ params }): Promise<Metadata> {
+    89→  const product = await getProduct(params.slug);
+    90→  return {
+    91→    title: product.name,
+    92→    description: product.metaDescription,
+    93→    alternates: { canonical: `/product/${product.slug}` },
+    94→    openGraph: { images: [product.ogImage], type: "website" },
+    95→    twitter: { card: "summary_large_image" },
+    96→  };
+    97→}
+    98→```
+    99→
+   100→Set a static `metadataBase` in the root layout so relative OG image URLs resolve correctly.
+   101→
+   102→### 1.7 Image optimization (next/image)
+   103→
+   104→- Always use `<Image>` with explicit `width`/`height` or `fill` + an aspect-ratio container (kills CLS).
+   105→- Set `sizes` to match layout breakpoints (e.g. `sizes="(max-width:768px) 100vw, 50vw"`) so the browser loads the right srcset.
+   106→- `priority` only for the LCP image (above-the-fold hero / first product image). Everything else is lazy by default.
+   107→- Configure `remotePatterns` for CDN hosts.
+   108→- 2026 default format is **AVIF** (smaller than WebP, universal support) with WebP fallback — Next.js handles negotiation automatically. See §6.
+   109→
+   110→### 1.8 Font optimization (next/font)
+   111→
+   112→Use `next/font/google` (or `next/font/local` for licensed display fonts). Fonts are self-hosted at build time, subsetted, and served with `font-display: swap` injected automatically — no FOIT, minimal FOUT. For a luxury aesthetic pair a **modern serif** (display) with a **neo-grotesque sans** (body):
+   113→
+   114→```ts
+   115→import { Playfair_Display, Inter } from "next/font/google";
+   116→const serif = Playfair_Display({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
+   117→const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+   118→// apply both variables on <html className={`${serif.variable} ${sans.variable}`}>
+   119→```
+   120→
+   121→---
+   122→
+   123→## 2. GSAP + Framer Motion (Motion) + Lenis Integration (2026)
+   124→
+   125→> Note: "Framer Motion" was rebranded to **Motion** (`motion` package, `motion.dev`). The React API remains `motion/react`.
+   126→
+   127→### 2.1 When to use GSAP vs Motion (don't duplicate)
+   128→
+   129→Use them for **different jobs**, never both for the same animation:
+   130→
+   131→| Job | Use | Why |
+   132→|---|---|---|
+   133→| Scroll-driven sequences, pinned sections, timelines, SVG morph, complex choreography | **GSAP + ScrollTrigger** | Timelines, scrubbing, fine control |
+   134→| React-declarative micro-interactions (hover, tap, mount/unmount, layout transitions, AnimatePresence) | **Motion** | Declarative `whileHover`/`whileTap`, `layoutId` shared-element transitions |
+   135→| Page transitions, route enter/exit | **Motion `AnimatePresence`** or `template.tsx` + GSAP | Either; pick one globally |
+   136→| Hero text split+reveal on load | **GSAP** (with SplitText) | Sequential timeline |
+   137→
+   138→Rule: **GSAP for scroll/timeline, Motion for state/reactivity.** Avoid running a GSAP scroll animation and a Motion animation on the same DOM node.
+   139→
+   140→### 2.2 useGSAP hook vs useLayoutEffect
+   141→
+   142→`useGSAP()` from `@gsap/react` is a **drop-in replacement for `useLayoutEffect`/`useEffect`** that wraps `gsap.context()` for automatic cleanup. It uses the **isomorphic layout effect** pattern (prefers `useLayoutEffect`, falls back to `useEffect` when `window` is undefined), so it is SSR-safe — but you still need `"use client"` in the App Router.
+   143→
+   144→```tsx
+   145→"use client";
+   146→import { useRef } from "react";
+   147→import gsap from "gsap";
+   148→import { useGSAP } from "@gsap/react";
+   149→import { ScrollTrigger } from "gsap/ScrollTrigger";
+   150→gsap.registerPlugin(useGSAP, ScrollTrigger);
+   151→
+   152→export function HeroParallax() {
+   153→  const container = useRef<HTMLDivElement>(null);
+   154→  useGSAP(() => {
+   155→    gsap.to(".layer-back", { yPercent: -20, ease: "none",
+   156→      scrollTrigger: { trigger: container.current, start: "top top", end: "bottom top", scrub: true }});
+   157→  }, { scope: container });
+   158→  return <div ref={container}>...</div>;
+   159→}
+   160→```
+   161→
+   162→**Cleanup matters**: React 18+ Strict Mode double-invokes effects in dev; without `useGSAP`/`context()` you get duplicate conflicting tweens.
+   163→
+   164→### 2.3 Lenis setup with Next.js App Router (client-side only)
+   165→
+   166→The `@studio-freight/*` packages are **retired** (Studio Freight → Darkroom Engineering). Use the single `lenis` package:
+   167→
+   168→```bash
+   169→npm install gsap lenis @gsap/react
+   170→```
+   171→
+   172→```tsx
+   173→// components/smooth-scrolling.tsx
+   174→"use client";
+   175→import { ReactLenis } from "lenis/react";
+   176→import "lenis/dist/lenis.css";
+   177→
+   178→export function SmoothScrolling({ children }: { children: React.ReactNode }) {
+   179→  return (
+   180→    <ReactLenis root options={{
+   181→      lerp: 0.1,          // 0.05 (very smooth) – 0.2 (snappy)
+   182→      duration: 1.2,
+   183→      syncTouch: true,    // REPLACES removed smoothTouch (Lenis 1.x)
+   184→    }}>
+   185→      {children}
+   186→    </ReactLenis>
+   187→  );
+   188→}
+   189→```
+   190→
+   191→Wrap `{children}` in the root layout's `<body>`. **`syncTouch` can be unstable on iOS < 16 — test on real devices**, and consider disabling it for the Pakistani mobile audience (§8) where older devices are common.
+   192→
+   193→### 2.4 Lenis + GSAP ScrollTrigger integration
+   194→
+   195→Wire Lenis's scroll into ScrollTrigger so both use the same scroll source:
+   196→
+   197→```tsx
+   198→"use client";
+   199→import { useEffect } from "react";
+   200→import Lenis from "lenis";
+   201→import gsap from "gsap";
+   202→import { ScrollTrigger } from "gsap/ScrollTrigger";
+   203→gsap.registerPlugin(ScrollTrigger);
+   204→
+   205→export function useLenisGsap() {
+   206→  useEffect(() => {
+   207→    const lenis = new Lenis({ lerp: 0.1, syncTouch: true });
+   208→    lenis.on("scroll", ScrollTrigger.update);
+   209→    const raf = (time: number) => { lenis.raf(time * 1000); };
+   210→    gsap.ticker.add(raf);
+   211→    gsap.ticker.lagSmoothing(0);
+   212→    return () => { gsap.ticker.remove(raf); lenis.destroy(); };
+   213→  }, []);
+   214→}
+   215→```
+   216→
+   217→### 2.5 Mobile-friendly parallax
+   218→
+   219→- Use **`transform: translate3d()`** only — never animate `top`/`left`/`margin` (layout thrash).
+   220→- Drive `yPercent`, not `y` in px, for responsiveness.
+   221→- Use **passive listeners**: GSAP/Lenis attach passive wheel/touch listeners by default — don't add your own non-passive scroll listeners.
+   222→- Cap parallax intensity on mobile (smaller `yPercent`) and prefer `scrub` over pinning on small screens.
+   223→
+   224→### 2.6 Respecting prefers-reduced-motion
+   225→
+   226→This is a **WCAG 2.2 (2.3.3 Animation from Interactions, AAA) and a Core Web Vitals** concern. Three layers:
+   227→
+   228→```css
+   229→/* global.css */
+   230→@media (prefers-reduced-motion: reduce) {
+   231→  *, *::before, *::after {
+   232→    animation-duration: 0.01ms !important;
+   233→    animation-iteration-count: 1 !important;
+   234→    transition-duration: 0.01ms !important;
+   235→    scroll-behavior: auto !important;
+   236→  }
+   237→}
+   238→```
+   239→
+   240→GSAP: use `gsap.matchMedia()`:
+   241→```tsx
+   242→useGSAP(() => {
+   243→  const mm = gsap.matchMedia();
+   244→  mm.add("(prefers-reduced-motion: no-preference)", () => {
+   245→    gsap.to(".hero", { yPercent: -20, scrollTrigger: {...} });
+   246→  });
+   247→}, { scope: container });
+   248→```
+   249→
+   250→Motion: `useReducedMotion()` hook + the `<MotionConfig reducedMotion="user">` wrapper. When reduced, skip transforms and fall back to instant/opacity-only changes.
+   251→
+   252→### 2.7 Performance: GPU-only props, will-change
+   253→
+   254→- Animate only `transform` (`x`,`y`,`scale`,`rotate`) and `opacity` — these are GPU-composited and don't trigger layout.
+   255→- Avoid animating `box-shadow`, `filter` (heavy), `width/height`, `border-radius`.
+   256→- Use `will-change: transform` **only while animating**, then remove it (don't leave it permanently — it bloats memory).
+   257→- Set `content-visibility: auto` on long below-the-fold sections (e.g. product grids) to skip off-screen rendering.
+   258→
+   259→---
+   260→
+   261→## 3. Modern E-Commerce UX Patterns (2026)
+   262→
+   263→### 3.1 Home page hero (premium home-decor)
+   264→
+   265→- **Full-bleed editorial hero** — a single hero product (a sculptural lamp) on black, gold wordmark serif headline, minimal copy. Gold thin-line CTA.
+   266→- **Scroll-driven reveal** — GSAP pinned section transitioning hero → first collection.
+   267→- **Hero video is acceptable** if lazy-loaded + `preload="none"` + a poster frame as the LCP image (poster must be a real `<img>` with `priority`).
+   268→- Avoid autoplaying heavy video on mobile (3G/4G, §8). Use a static image fallback via `<picture>`.
+   269→
+   270→### 3.2 Product card interactions
+   271→
+   272→- **Hover (desktop):** image cross-fades to a second angle; gold "Quick View" button fades in; subtle `y` lift (`translateY(-4px)`).
+   273→- **Quick View:** Motion modal with shared-element `layoutId` transition from the card image. Loads product via server fetch; never blocks the grid.
+   274→- **Mobile:** no hover — tap card → PDP; quick view accessible via a small icon button. Avoid hover-only affordances.
+   275→
+   276→### 3.3 Product gallery (PDP)
+   277→
+   278→- **Main image + thumbnails** — vertical thumb rail on desktop, horizontal swipe on mobile.
+   279→- **Hover zoom** (desktop) — magnify on hover using `transform: scale` on a wrapper (GPU-friendly).
+   280→- **Pinch zoom** (mobile) — native gesture on the `<img>`.
+   281→- **360° view** — only for hero SKUs (lamps); load the sprite sequence on demand, not on page load.
+   282→- **Video** — `<video>` with `poster`, `preload="none"`, `playsinline`; play on tap only.
+   283→
+   284→### 3.4 Cart drawer vs cart page
+   285→
+   286→- **Cart drawer (slide-over)** for adding/adjusting — instant, context-preserving. Open automatically on add-to-cart with a Motion spring.
+   287→- **Cart page** for the final review step before checkout. Drawer has a "View full cart →" link.
+   288→- Drawer must trap focus (§7), close on `Esc`, and return focus to the trigger.
+   289→
+   290→### 3.5 Checkout flow
+   291→
+   292→For Pakistan: **single-page, COD-first checkout.** Steps compressed into one screen:
+   293→1. Contact (phone +92, name)
+   294→2. Shipping address
+   295→3. Delivery method (standard / express)
+   296→4. Payment — **COD as default and most prominent**, JazzCash/Easypaisa as secondary, card as tertiary
+   297→5. Order review + place order
+   298→
+   299→Single-page reduces abandonment on mobile data connections. Use a sticky order summary.
+   300→
+   301→### 3.6 Account dashboard
+   302→
+   303→Minimal: **Orders, Addresses, Wishlist, Saved Carts, Logout.** Pakistani users frequently order as guest; make account creation optional post-purchase ("Save your details for next time").
+   304→
+   305→### 3.7 Lookbook / editorial content
+   306→
+   307→A **Lookbook** route (`/lookbook/[slug]`) with full-bleed imagery, GSAP scroll-pinned chapters, and shoppable hotspots (Motion tooltips). This is where the gold/black/white aesthetic shines and supports SEO via long-form editorial content + `Article` schema.
+   308→
+   309→### 3.8 Trust signals for the Pakistani market
+   310→
+   311→- **COD badge** in header, PDP, cart, checkout — "Cash on Delivery available."
+   312→- **WhatsApp button** (floating, gold-on-black) → `https://wa.me/92XXXXXXXXXX?text=...`.
+   313→- **Local testimonials** with city names (Karachi, Lahore, Islamabad).
+   314→- **Delivery partner logos** (Leopards, TCS, Trax, BlueEx).
+   315→- **Return policy** + **verified reviews** badges.
+   316→- Phone-order option ("Order on call").
+   317→
+   318→---
+   319→
+   320→## 4. Premium Gold/Black/White Design System (2026)
+   321→
+   322→### 4.1 Brand references
+   323→
+   324→- **Gold + black premium aesthetic:** Versace, Bottega Veneta, Tom Ford, Rolex, MAC Cosmetics, Casa Vita, TRAME (Paris), and home-decor labels like **Hay**, **Frama**, **Apparatus Studio** (lighting), and **Ferm Living**. Apparatus in particular is the closest analog for sculptural lighting.
+   325→- Aesthetic direction: **"quiet luxury"** (2026 trend) — matte black, brushed/champagne gold (not shiny yellow), generous whitespace, serif display type, restrained motion.
+   326→
+   327→### 4.2 Typography pairings
+   328→
+   329→- **Serif display (headings):** Playfair Display, Cormorant Garamond, Fraunces, or Canela (licensed). Fraunces is a strong 2026 choice (variable, optical sizing).
+   330→- **Sans body:** Inter, Söhne (licensed), or Geist. Inter is the safe, free default.
+   331→- **Mono (labels/eyebrows):** JetBrains Mono or Geist Mono — used sparingly for "01 — Collection" style eyebrows in gold.
+   332→- Pairing for this project: **Fraunces (serif, display) + Inter (sans, body)** via `next/font`.
+   333→
+   334→### 4.3 Spacing system (8px grid, fluid)
+   335→
+   336→Use an 8 px base scale with `clamp()` for fluid responsive spacing:
+   337→```css
+   338→:root {
+   339→  --space-2xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.375rem);
+   340→  --space-xs:  clamp(0.5rem,  0.45rem + 0.25vw, 0.625rem);
+   341→  --space-s:   clamp(1rem,    0.9rem + 0.5vw,  1.25rem);
+   342→  --space-m:   clamp(1.5rem,  1.3rem + 1vw,    2rem);
+   343→  --space-l:   clamp(2.5rem,  2rem + 2.5vw,    4rem);
+   344→  --space-xl:  clamp(4rem,    3rem + 5vw,      7rem);
+   345→  --space-2xl: clamp(6rem,    4rem + 10vw,     12rem);
+   346→}
+   347→```
+   348→Tailwind 4 maps these via the `@theme` block to `p-2xs` etc.
+   349→
+   350→### 4.4 Color token naming (2026 best practice)
+   351→
+   352→Use **semantic, role-based tokens**, not raw hex. Raw palette + semantic layer:
+   353→```css
+   354→@theme {
+   355→  --color-gold-500: #c9a14a;   /* primary brand gold */
+   356→  --color-gold-300: #e0c887;   /* hover/light */
+   357→  --color-gold-700: #9c7a2e;   /* pressed/dark */
+   358→  --color-ink-950:  #0a0a0a;   /* near-black bg */
+   359→  --color-ink-900:  #121212;
+   360→  --color-paper:    #faf8f3;   /* warm white */
+   361→}
+   362→:root {
+   363→  --bg: var(--color-ink-950);
+   364→  --surface: var(--color-ink-900);
+   365→  --text: var(--color-paper);
+   366→  --text-muted: #a8a29e;
+   367→  --accent: var(--color-gold-500);
+   368→  --accent-hover: var(--color-gold-300);
+   369→  --border: rgba(201,161,74,0.2);
+   370→  --ring: var(--color-gold-500);
+   371→}
+   372→```
+   373→Tokens (semantic) are what components reference; the palette layer can be re-skinned without touching components.
+   374→
+   375→### 4.5 Neumorphism vs glassmorphism vs flat — what's current
+   376→
+   377→**2026 verdict:** flat with **subtle depth** (soft shadows, hairline gold borders, layered translucency). Neumorphism is dated; heavy glassmorphism is fading. Current premium look = flat surfaces + 1 px hairline borders + one elevation level + restrained backdrop-blur only on overlays (cart drawer over content).
+   378→
+   379→### 4.6 Border radius trends
+   380→
+   381→**Small, intentional radii** are current. Luxury tends toward **sharp corners (0–4 px)** with pill-shaped buttons (full radius) as accent. For this project: 2 px on cards/images, 0 on imagery, `9999px` on buttons/badges. Avoid the generic `rounded-2xl` everywhere look.
+   382→
+   383→### 4.7 Micro-interactions on premium sites
+   384→
+   385→- Gold underline that draws on link hover (Motion `pathLength`).
+   386→- Magnetic buttons (GSAP, desktop only, respects reduced-motion).
+   387→- Image reveal on scroll (clip-path `inset()` animate via GSAP).
+   388→- Cursor follower (desktop, optional) — a small gold dot that scales on interactive elements.
+   389→- Add-to-cart: item flies to cart icon (Motion `layoutId`).
+   390→
+   391→---
+   392→
+   393→## 5. SEO 2026 Standards for E-Commerce
+   394→
+   395→### 5.1 Core Web Vitals targets (2026 thresholds)
+   396→
+   397→| Metric | Good | Needs Improvement | Poor | 2026 pass rate |
+   398→|---|---|---|---|---|
+   399→| **INP** | ≤ 200 ms | 200–500 ms | > 500 ms | 57% (43% fail) |
+   400→| **LCP** | ≤ 2.5 s | 2.5–4.0 s | > 4.0 s | 68% |
+   401→| **CLS** | ≤ 0.1 | 0.1–0.25 | > 0.25 | 78% |
+   402→
+   403→Source: web.dev / Chrome User Experience Report (CrUX), 2026. **Target for this project:** INP ≤ 150 ms, LCP ≤ 2.0 s, CLS ≤ 0.05 (premium bar above the "good" line). Note Google ranks on **real-user CrUX data at the 75th percentile**, not Lighthouse synthetic scores — instrument with the `web-vitals` library + a RUM endpoint.
+   404→
+   405→### 5.2 Schema.org markup
+   406→
+   407→Emit JSON-LD (in a Server Component, rendered into `<script type="application/ld+json">`):
+   408→
+   409→- **Organization** — on the homepage (logo, sameAs socials, contactPoint with +92 phone).
+   410→- **WebSite** + SearchAction — enables sitelinks search box.
+   411→- **BreadcrumbList** — on every PDP/PLP.
+   412→- **Product** — name, image, description, brand, sku, gtin, offers (price, priceCurrency PKR, availability, url).
+   413→- **FAQPage** — on PDP for shipping/returns Q&A → FAQ rich results.
+   414→- **AggregateRating / Review** — only if you have genuine reviews (don't fake — penalty risk).
+   415→
+   416→### 5.3 Structured data for product variants
+   417→
+   418→Use **`ProductGroup`** with nested `Product` variants (Google's official 2026 guidance). For a lamp with multiple finishes:
+   419→
+   420→```json
+   421→{
+   422→  "@context": "https://schema.org/",
+   423→  "@type": "ProductGroup",
+   424→  "name": "Aurora Brass Table Lamp",
+   425→  "description": "Sculptural table lamp in solid brass.",
+   426→  "url": "https://shop.pk/product/aurora-lamp",
+   427→  "brand": { "@type": "Brand", "name": "Maison Noor" },
+   428→  "productGroupID": "aurora-lamp",
+   429→  "variesBy": ["https://schema.org/color", "https://schema.org/material"],
+   430→  "hasVariant": [
+   431→    {
+   432→      "@type": "Product",
+   433→      "sku": "AUR-BR",
+   434→      "color": "Brass",
+   435→      "offers": { "@type": "Offer", "price": "24500", "priceCurrency": "PKR",
+   436→        "availability": "https://schema.org/InStock", "url": "https://shop.pk/product/aurora-lamp?finish=brass" }
+   437→    },
+   438→    {
+   439→      "@type": "Product",
+   440→      "sku": "AUR-BK",
+   441→      "color": "Matte Black",
+   442→      "offers": { "@type": "Offer", "price": "23500", "priceCurrency": "PKR",
+   443→        "availability": "https://schema.org/InStock", "url": "https://shop.pk/product/aurora-lamp?finish=black" }
+   444→    }
+   445→  ]
+   446→}
+   447→```
+   448→
+   449→### 5.4 Sitemap strategy
+   450→
+   451→- Use Next.js `app/sitemap.ts` (dynamic) generating from the CMS/catalog.
+   452→- For large catalogs: split into **sitemap index** with per-type sitemaps (`/sitemap-products.xml`, `/sitemap-categories.xml`, `/sitemap-lookbook.xml`).
+   453→- Include `<lastmod>`, `<changefreq>` (advisory), `<priority>`. Submit to Google Search Console.
+   454→- Add an **image sitemap extension** for product imagery.
+   455→
+   456→### 5.5 robots.txt
+   457→
+   458→`app/robots.ts`:
+   459→```ts
+   460→export default function robots(): MetadataRoute.Robots {
+   461→  return {
+   462→    rules: [{ userAgent: "*", allow: "/", disallow: ["/cart", "/checkout", "/account", "/api", "/search?"] }],
+   463→    sitemap: "https://shop.pk/sitemap.xml",
+   464→    host: "https://shop.pk",
+   465→  };
+   466→}
+   467→```
+   468→
+   469→### 5.6 Open Graph + Twitter Card
+   470→
+   471→Handled via the Metadata API (§1.6). Always set `og:image` (1200×630), `og:type`, `twitter:card: summary_large_image`. For products use `og:type: product` where supported. Provide a default site OG image in the root metadata.
+   472→
+   473→### 5.7 hreflang for future i18n
+   474→
+   475→Even if launching Pakistan-only, scaffold `app/[locale]/` now. Emit `<link rel="alternate" hreflang="en-pk" .../>` tags via `generateMetadata` `alternates.languages`. Start with `en-PK`; Urdu (`ur-PK`) can be added later without restructuring.
+   476→
+   477→### 5.8 Canonical tags
+   478→
+   479→Every page sets `alternates.canonical` in its metadata. For variant URLs (query-string variants), canonical to the master product URL so juice consolidates. Pagination uses `rel="next/prev"` semantics via metadata `alternates`.
+   480→
+   481→---
+   482→
+   483→## 6. Performance Optimization 2026
+   484→
+   485→### 6.1 Image formats
+   486→
+   487→| Format | 2026 status | Use |
+   488→|---|---|---|
+   489→| **AVIF** | Universal browser support; ~50% smaller than JPEG | Primary — Next.js default for `<Image>` |
+   490→| **WebP** | Universal | Fallback where AVIF unsupported |
+   491→| **JPEG XL** | Still limited browser adoption; royalty-free | Watch; not production-default yet |
+   492→| PNG | — | Only for transparency where AVIF alpha insufficient |
+   493→
+   494→Next.js `<Image>` auto-negotiates AVIF→WebP→JPEG by `Accept` header. Ensure `formats: ['image/avif','image/webp']` in `next.config`.
+   495→
+   496→### 6.2 Lazy loading
+   497→
+   498→- `next/image` lazy-loads by default except `priority` images.
+   499→- Use `loading="lazy"` + `decoding="async"` on any raw `<img>`.
+   500→- Defer non-critical JS (analytics, chat) with `next/script` `strategy="lazyOnload"` or `afterInteractive`.
+   501→- Use `content-visibility: auto` + `contain-intrinsic-size` on long product grids.
+   502→
+   503→### 6.3 Code splitting
+   504→
+   505→- App Router auto-splits per route. Keep client components small.
+   506→- Dynamically import heavy client-only libs (`next/dynamic` with `ssr:false`) — e.g. a 360° viewer, a configurator.
+   507→- Tree-shake: import `motion/react` not `framer-motion` legacy; import specific GSAP plugins.
+   508→
+   509→### 6.4 Bundle size budgets
+   510→
+   511→Set budgets in `next.config.ts` and enforce via CI:
+   512→- **First Load JS (per route):** ≤ 170 KB gzipped (premium target 130 KB).
+   513→- **Motion + GSAP + Lenis combined client cost:** ~30–45 KB gzipped — acceptable; keep them out of the critical path where possible.
+   514→- **Third-party (analytics/chat):** ≤ 20 KB gzipped total.
+   515→
+   516→### 6.5 Edge runtime usage
+   517→
+   518→Use `export const runtime = "edge"` for lean, latency-sensitive routes: OG image generation (`next/og`), sitemap, robots, redirects, geo-based localization. Avoid edge for routes needing Node APIs or heavy DB drivers. For Pakistan, an edge-deployed global function still helps even if the audience is local (fewer hops to origin).
+   519→
+   520→### 6.6 CDN strategy
+   521→
+   522→- Vercel's edge network (or Cloudflare) caches the PPR static shell globally.
+   523→- Serve images via the platform's image optimizer (Vercel) or Cloudflare Images.
+   524→- Put a CDN in front of the CMS/origin for media.
+   525→- Use `Cache-Control` + `s-maxage` + `stale-while-revalidate` on dynamic-but-cacheable data (e.g. PLP results).
+   526→
+   527→---
+   528→
+   529→## 7. Accessibility 2026 (WCAG 2.2)
+   530→
+   531→### 7.1 Key WCAG 2.2 additions (9 new success criteria over 2.1)
+   532→
+   533→Most relevant to e-commerce (Level AA targets):
+   534→- **2.4.11 Focus Not Obscured (Minimum)** — focused element must not be fully hidden by sticky headers/drawers.
+   535→- **2.4.12 Focus Not Obscured (Enhanced)** — not partially hidden either (AAA).
+   536→- **2.5.7 Dragging Movements** — any drag interaction (e.g. image zoom, slider) must have a single-pointer alternative (tap/buttons).
+   537→- **2.5.8 Target Size (Minimum)** — clickable targets ≥ 24×24 CSS px (critical for mobile cart/checkout).
+   538→- **3.2.6 Consistent Help** — help mechanisms (WhatsApp, contact) in a consistent location across pages.
+   539→- **3.3.7 Redundant Entry** — don't make users re-enter the same info (e.g. billing = shipping toggle).
+   540→- **3.3.8/3.3.9 Findable Help / Accessible Auth** — no captcha-only auth; offer non-visual passwordless.
+   541→
+   542→April 2026 is a commonly cited compliance pressure point for e-commerce (EAA-style obligations). Treat **WCAG 2.2 AA as the baseline**.
+   543→
+   544→### 7.2 Keyboard navigation
+   545→
+   546→- Full keyboard operability; visible focus ring (gold, 2 px outline with 2 px offset) — never `outline: none` without a replacement.
+   547→- Logical tab order; skip-to-content link as the first focusable element.
+   548→- No keyboard traps except intentional modal/dialog (with clear Esc exit).
+   549→
+   550→### 7.3 Screen-reader patterns for product pages
+   551→
+   552→- Use a semantic heading hierarchy (one `<h1>` = product name).
+   553→- Product gallery: `role="group"` with `aria-label`; thumbnails are `role="button"` controlling a live region.
+   554→- Variant selectors: native `<select>` or radio group with `aria-pressed`/`aria-checked`.
+   555→- Price + availability in an `aria-live="polite"` region so changes announce.
+   556→- "Add to cart" announces via `aria-live` toast: "Aurora Lamp added to cart".
+   557→
+   558→### 7.4 Focus management for modals/drawers
+   559→
+   560→- On open: move focus to the drawer/modal heading or first focusable element.
+   561→- Trap focus within (Tab/Shift+Tab cycle).
+   562→- On close: return focus to the trigger.
+   563→- `role="dialog"`, `aria-modal="true"`, `aria-labelledby`.
+   564→- Motion's `<AnimatePresence>` works well; pair with a `focus-trap-react` or Radix `Dialog`/`Drawer` primitives.
+   565→
+   566→### 7.5 Color contrast for gold-on-black
+   567→
+   568→WCAG requires **4.5:1 for normal text, 3:1 for large text (≥24 px or 18.66 px bold)**. Gold on black is generally strong, but not all golds pass:
+   569→- `#c9a14a` (brand gold) on `#0a0a0a` → **~7.4:1** ✅ passes AAA for normal text.
+   570→- `#e0c887` (light gold) on `#0a0a0a` → **~10.5:1** ✅.
+   571→- `#c9a14a` on `#faf8f3` (paper white) → **~2.6:1** ❌ fails — use a darker gold (`#9c7a2e` → ~4.6:1 ✅) or ink-950 text on white with gold only for accents/borders.
+   572→- Gold-on-gold or gold-on-cream must be checked per pair. Never use pure gold for body text on light backgrounds.
+   573→
+   574→Contrast ratio formula: `(L1+0.05)/(L2+0.05)`. Always verify with a checker (axe, AccessibleWeb).
+   575→
+   576→---
+   577→
+   578→## 8. Pakistani E-Commerce Specific Considerations
+   579→
+   580→### 8.1 COD-first UX
+   581→
+   582→COD drives **80–85%** of Pakistani e-commerce orders. UX implications:
+   583→- COD is the **default, pre-selected** payment option at checkout.
+   584→- A persistent **"Cash on Delivery" badge** in header, PDP, cart.
+   585→- Address form optimized for Pakistani addressing (house no, street, area, city, province; free-text landmark field — landmarks are culturally essential).
+   586→- **COD fee** clearly disclosed; free-COD threshold as a motivator.
+   587→- Anti-fraud: phone number verification (OTP) for COD orders over a threshold; order confirmation via WhatsApp/SMS.
+   588→
+   589→### 8.2 JazzCash / Easypaisa integration UX
+   590→
+   591→JazzCash (~700,000+ merchants) and Easypaisa are the dominant wallets.
+   592→- Offer both as **payment buttons** (not buried in a dropdown).
+   593→- Mobile-based flow: user enters phone number → receives prompt/OTP → completes on the wallet app → returns.
+   594→- Show a clear "You will be redirected to JazzCash" interstitial.
+   595→- Handle failed/abandoned wallet payments gracefully with retry + fallback to COD.
+   596→- Consider **"Digital COD"** (QR-based, e.g. Leopards/Postex) as an emerging option.
+   597→
+   598→### 8.3 Mobile traffic optimization (3G/4G)
+   599→
+   600→- Pakistan is overwhelmingly mobile; design **mobile-first**, data-frugal.
+   601→- Aggressive image compression; serve AVIF; cap hero image weight.
+   602→- **Disable Lenis `syncTouch` on low-end devices** (or feature-detect) — smooth-scroll on 3G/low-RAM phones causes jank and INP regressions.
+   603→- Limit above-the-fold JS; defer GSAP/Motion below the fold.
+   604→- Provide a "lite" experience path if possible (e.g. no parallax on `navigator.connection.effectiveType` ∈ {2g, slow-2g, 3g}).
+   605→
+   606→### 8.4 WhatsApp integration
+   607→
+   608→- Floating WhatsApp button → `https://wa.me/92XXXXXXXXXX?text=Hi, I'm interested in the Aurora Lamp`.
+   609→- Pre-fill message with product name/URL from the PDP ("Order on WhatsApp" button).
+   610→- Use the WhatsApp Business API for order confirmations/shipping updates if volume justifies.
+   611→
+   612→### 8.5 Local imagery & cultural sensitivity
+   613→
+   614→- Avoid alcohol/figurative imagery; favor warm interior scenes, local craftsmanship, Ramadan/Eid seasonal collections.
+   615→- Use models/scenes that resonate locally; lifestyle imagery in Pakistani home settings.
+   616→- Prayer-friendly scheduling: avoid auto-playing audio/video.
+   617→
+   618→### 8.6 Currency formatting (PKR)
+   619→
+   620→- Use `Intl.NumberFormat('ur-PK', { style: 'currency', currency: 'PKR' })` → "Rs 24,500".
+   621→- Decide on "Rs" vs "PKR" and use consistently. No decimals (PKR is whole-rupee in practice for decor).
+   622→- Format with thousands separators (South Asian grouping optional: 2,45,000 vs 245,000 — pick one, the international grouping is safer for a premium English UI).
+   623→
+   624→### 8.7 Phone number formatting (+92)
+   625→
+   626→- Input: `<input type="tel" inputMode="numeric">` with a `+92` prefix fixed.
+   627→- Validate: 10 digits after `0`/`92` (e.g. `03XX XXXXXXXX`). Strip non-digits before validation.
+   628→- Use `libphonenumber-js` for robust parsing/formatting.
+   629→- Use phone OTP for order verification (COD fraud mitigation).
+   630→
+   631→---
+   632→
+   633→## 9. Deployment 2026 Standards
+   634→
+   635→### 9.1 Vercel vs Cloudflare Pages vs self-hosted
+   636→
+   637→- **Vercel** — best DX for Next.js; first-class PPR, Image, Edge, ISR, Analytics, Speed Insights, Preview Deployments. **Recommended default** for this project. Tradeoff: cost scales with bandwidth/invocations.
+   638→- **Cloudflare Pages (Workers + OpenNext adapter)** — global edge, generous egress, cheaper at scale; some Next.js features lag or need the adapter. Good if cost/edge latency dominates.
+   639→- **Self-hosted (Node server / Docker on AWS/Local PK host)** — full control; suitable if you must keep data in-country or reduce latency for a PK-only audience. Lose managed PPR/ISR conveniences unless you replicate caching.
+   640→
+   641→For a premium Pakistani store, **Vercel** is the pragmatic 2026 default; consider a Cloudflare CDN in front for media and to cut egress.
+   642→
+   643→### 9.2 Edge functions
+   644→
+   645→Use edge for: redirects, geo-routing, OG images, sitemap/robots, A/B test bucketing, locale negotiation. Vercel Edge Functions (Fluid Compute) or Cloudflare Workers.
+   646→
+   647→### 9.3 ISR patterns
+   648→
+   649→ISR (now folded into the PPR/`revalidate` model) for catalog pages:
+   650→```ts
+   651→// app/product/[slug]/page.tsx
+   652→export const revalidate = 3600; // revalidate price/inventory hourly
+   653→```
+   654→With PPR, prefer streaming dynamic parts instead of whole-page ISR where personalization matters.
+   655→
+   656→### 9.4 Environment variables
+   657→
+   658→- Use Vercel's env var system with **Preview/Production/Development** scopes.
+   659→- Prefix client-exposed vars with `NEXT_PUBLIC_`; keep secrets server-only.
+   660→- Never commit `.env` files; use a secrets manager (Doppler, 1Password) for the team.
+   661→
+   662→### 9.5 Preview deployments
+   663→
+   664→Every PR gets a Vercel Preview URL. Enable **Draft Mode** (`draftMode().enable()`) for editors to preview unpublished CMS content. Share preview links with the (likely non-technical) store owner for sign-off.
+   665→
+   666→### 9.6 Analytics: Vercel Analytics vs Plausible vs Fathom
+   667→
+   668→- **Vercel Analytics** — zero-config, RUM-based (Web Vitals), free tier; good baseline but limited custom events/marketing.
+   669→- **Plausible** — cookieless, privacy-friendly (GDPR/EU-hosted), simple goal tracking, custom events. **Recommended** for a premium privacy-conscious brand.
+   670→- **Fathom** — even simpler than Plausible, fewer features; great if you want minimal.
+   671→- For this project: **Plausible** for traffic + Vercel Analytics for Core Web Vitals RUM + a custom `web-vitals` → Plausible event bridge. Avoid GA4 (heavy, privacy friction).
+   672→
+   673→---
+   674→
+   675→## 10. Folder Structure for Production-Grade Next.js E-Commerce
+   676→
+   677→A **route-based App Router + feature modules** hybrid, tuned for the stack. Feature-based grouping keeps related server+client code together; the `app/` folder mirrors URL structure and stays thin (delegating to features).
+   678→
+   679→```
+   680→src/
+   681→├─ app/
+   682→│  ├─ (shop)/                       # route group — doesn't affect URL
+   683→│  │  ├─ layout.tsx                 # shop shell: nav, footer, cart drawer
+   684→│  │  ├─ page.tsx                   # home
+   685→│  │  ├─ product/[slug]/
+   686→│  │  │  ├─ page.tsx                # thin: delegates to features/product
+   687→│  │  │  ├─ loading.tsx
+   688→│  │  │  └─ error.tsx
+   689→│  │  ├─ category/[slug]/page.tsx   # PLP
+   690→│  │  ├─ lookbook/[slug]/page.tsx
+   691→│  │  └─ search/page.tsx
+   692→│  ├─ (checkout)/
+   693→│  │  ├─ cart/page.tsx
+   694→│  │  └─ checkout/page.tsx
+   695→│  ├─ (account)/
+   696→│  │  └─ account/...
+   697→│  ├─ api/                          # route handlers (webhooks, OG, revalidate)
+   698→│  ├─ layout.tsx                    # root: <html>, fonts, SmoothScrolling, providers
+   699→│  ├─ template.tsx                  # route enter animations
+   700→│  ├─ loading.tsx
+   701→│  ├─ error.tsx
+   702→│  ├─ not-found.tsx
+   703→│  ├─ global-error.tsx
+   704→│  ├─ sitemap.ts
+   705→│  ├─ robots.ts
+   706→│  └─ globals.css
+   707→├─ features/                        # feature modules (colocated server+client)
+   708→│  ├─ product/
+   709→│  │  ├─ components/
+   710→│  │  │  ├─ product-header.tsx
+   711→│  │  │  ├─ product-gallery.tsx     # "use client"
+   712→│  │  │  ├─ variant-selector.tsx    # "use client"
+   713→│  │  │  └─ pricing-section.tsx
+   714→│  │  ├─ hooks/use-product-quickview.ts
+   715→│  │  ├─ actions.ts                 # server actions
+   716→│  │  └─ schema.ts                  # zod schema + JSON-LD builder
+   717→│  ├─ cart/
+   718→│  │  ├─ components/cart-drawer.tsx
+   719→│  │  ├─ store/cart-store.ts        # zustand
+   720→│  │  └─ hooks/
+   721→│  ├─ checkout/...
+   722→│  ├─ lookbook/...
+   723→│  └─ ui/                           # design-system primitives
+   724→│     ├─ button.tsx
+   725→│     ├─ price.tsx
+   726→│     ├─ badge.tsx
+   727→│     └─ ...
+   728→├─ components/                      # app-level shared (header, footer, whatsapp-fab)
+   729→├─ lib/                             # framework-y integrations & singletons
+   730→│  ├─ cms.ts                        # CMS client
+   731→│  ├─ payments/                     # jazzcash.ts, easypaisa.ts
+   732→│  ├─ analytics.ts
+   733→│  └─ lenis-gsap.ts                 # raf wiring
+   734→├─ services/                        # external API/domain services
+   735→│  ├─ orders.service.ts
+   736→│  ├─ inventory.service.ts
+   737→│  └─ shipping/                     # leopards.ts, tcs.ts, blueex.ts
+   738→├─ utils/                           # pure helpers (formatCurrency, cn, slugify)
+   739→├─ hooks/                           # global hooks (useReducedMotion, useMediaQuery)
+   740→├─ types/                           # shared TS types (Product, Order, Cart)
+   741→├─ constants/                       # site config, nav, payment constants
+   742→├─ config/                          # next config, env validation (zod)
+   743→└─ styles/                          # tokens, tailwind theme
+   744→```
+   745→
+   746→### 10.1 lib/ vs utils/ vs services/
+   747→
+   748→- **`lib/`** — framework adapters & singletons (CMS client, payment SDK setup, analytics init). Stateful, side-effectful, framework-adjacent.
+   749→- **`utils/`** — pure, side-effect-free helpers (`cn`, `formatPKR`, `formatPhone`, `slugify`). Easy to unit-test.
+   750→- **`services/`** — domain/business services talking to external systems (orders, inventory, shipping). Encapsulate API calls + DTO mapping.
+   751→
+   752→### 10.2 UI primitives vs feature components
+   753→
+   754→- **`features/ui/`** — design-system primitives (Button, Input, Price, Badge, Container, Section). Stateless, presentational, themed. Compose these inside features.
+   755→- **`features/<domain>/components/`** — domain components (ProductGallery, CartDrawer, CheckoutForm). May use primitives + hooks + stores.
+   756→Keep primitives dumb; keep features smart. Don't import domain types into primitives.
+   757→
+   758→### 10.3 State management — Zustand for cart
+   759→
+   760→Zustand is the 2026 default for cart/UI state (lightweight, fewer re-renders than Redux). Use `persist` middleware for cart + `skipHydration` to avoid SSR hydration mismatch, then rehydrate on mount:
+   761→
+   762→```ts
+   763→// features/cart/store/cart-store.ts
+   764→import { create } from "zustand";
+   765→import { persist, createJSONStorage } from "zustand/middleware";
+   766→
+   767→type CartItem = { slug: string; name: string; price: number; qty: number; variant?: string };
+   768→type CartState = {
+   769→  items: CartItem[];
+   770→  isOpen: boolean;
+   771→  add: (item: CartItem) => void;
+   772→  remove: (slug: string, variant?: string) => void;
+   773→  setQty: (slug: string, qty: number, variant?: string) => void;
+   774→  open: () => void; close: () => void;
+   775→  count: () => number;
+   776→  subtotal: () => number;
+   777→};
+   778→
+   779→export const useCart = create<CartState>()(
+   780→  persist(
+   781→    (set, get) => ({
+   782→      items: [], isOpen: false,
+   783→      add: (item) => set((s) => {
+   784→        const idx = s.items.findIndex(i => i.slug === item.slug && i.variant === item.variant);
+   785→        if (idx > -1) { const items = [...s.items]; items[idx] = { ...items[idx], qty: items[idx].qty + item.qty }; return { items, isOpen: true }; }
+   786→        return { items: [...s.items, item], isOpen: true };
+   787→      }),
+   788→      remove: (slug, variant) => set(s => ({ items: s.items.filter(i => !(i.slug === slug && i.variant === variant)) })),
+   789→      setQty: (slug, qty, variant) => set(s => ({ items: s.items.map(i => i.slug === slug && i.variant === variant ? { ...i, qty } : i) })),
+   790→      open: () => set({ isOpen: true }), close: () => set({ isOpen: false }),
+   791→      count: () => get().items.reduce((n, i) => n + i.qty, 0),
+   792→      subtotal: () => get().items.reduce((n, i) => n + i.qty * i.price, 0),
+   793→    }),
+   794→    { name: "cart", storage: createJSONStorage(() => localStorage), skipHydration: true }
+   795→  )
+   796→);
+   797→```
+   798→Rehydrate in a top-level client effect: `useEffect(() => { useCart.persist.rehydrate(); }, [])`. Keep the store client-only (the cart is a client island).
+   799→
+   800→### 10.4 Form handling — React Hook Form + Zod
+   801→
+   802→Checkout/address forms: **React Hook Form** (performant, uncontrolled) + **Zod** (schema-first, TS type inference via `z.infer`). Use `@hookform/resolvers/zod`:
+   803→
+   804→```ts
+   805→import { z } from "zod";
+   806→const checkoutSchema = z.object({
+   807→  fullName: z.string().min(2, "Enter your full name"),
+   808→  phone: z.string().regex(/^(\+92|0)?3\d{9}$/, "Enter a valid Pakistani mobile (03XXXXXXXXX)"),
+   809→  city: z.string().min(2),
+   810→  address: z.string().min(10, "Please provide a detailed address"),
+   811→  landmark: z.string().optional(),
+   812→  paymentMethod: z.enum(["cod", "jazzcash", "easypaisa", "card"]),
+   813→});
+   814→type CheckoutValues = z.infer<typeof checkoutSchema>;
+   815→```
+   816→```tsx
+   817→"use client";
+   818→import { useForm } from "react-hook-form";
+   819→import { zodResolver } from "@hookform/resolvers/zod";
+   820→const form = useForm<CheckoutValues>({ resolver: zodResolver(checkoutSchema), defaultValues: { paymentMethod: "cod" } });
+   821→```
+   822→Define the Zod schema once in the feature's `schema.ts`; infer TS types from it; reuse for both client validation and server action validation (single source of truth).
+   823→
+   824→---
+   825→
+   826→## Consolidated Recommendations for This Project
+   827→
+   828→1. **Render:** Next.js 16 App Router, RSC-by-default, **PPR enabled incrementally** for product/PLP pages (static shell + streamed price/reviews). Target INP ≤150 ms, LCP ≤2.0 s, CLS ≤0.05.
+   829→2. **Animation:** GSAP + ScrollTrigger for scroll/timeline/hero reveals; Motion for React-declarative micro-interactions and `AnimatePresence` transitions. **Lenis** (`lenis/react`, `syncTouch` gated by device/network) wrapping children in the root layout; wire to GSAP ticker. Universal `prefers-reduced-motion` guards (CSS + `gsap.matchMedia` + `MotionConfig`).
+   830→3. **Design system:** Fraunces (serif display) + Inter (sans) via `next/font`; semantic color tokens (gold-500 `#c9a14a` on ink-950 `#0a0a0a` ≈ 7.4:1 — AAA-safe); fluid `clamp()` spacing on an 8 px base; sharp 2 px radii + pill buttons; quiet-luxury flat + hairline gold borders.
+   831→4. **SEO:** Metadata API with canonical + OG/Twitter; JSON-LD `Organization`, `WebSite`, `BreadcrumbList`, `ProductGroup`-variant `Product`, `FAQPage`; dynamic `sitemap.ts` split by type; `robots.ts`; scaffold `[locale]` for future Urdu.
+   832→5. **Commerce UX:** COD-default single-page checkout; JazzCash/Easypaisa prominent; cart drawer + cart page; quick-view modal; WhatsApp FAB; COD/trust badges; `Intl.NumberFormat('ur-PK')` for PKR; `libphonenumber-js` for +92 phones; OTP verification for COD.
+   833→6. **A11y:** WCAG 2.2 AA baseline; visible gold focus ring; 24 px min targets; focus-trap in drawer/modal; `aria-live` for price/cart changes; contrast-check every gold pair.
+   834→7. **Deployment:** Vercel (PPR/Image/Preview/Draft Mode) + Plausible (privacy analytics) + Vercel Web Vitals RUM; edge functions for OG/sitemap/geo; env vars scoped per environment.
+   835→8. **Structure:** `app/` (thin, URL-mirrored) + `features/` (colocated domain modules + `ui/` primitives) + `lib/` + `services/` + `utils/`; Zustand `persist` cart (client-only, `skipHydration`); React Hook Form + Zod (single shared schema for client + server actions).
+   836→
+   837→---
+   838→
+   839→## Sources
+   840→
+   841→- Next.js 16 release & docs — nextjs.org/blog/next-16, nextjs.org/docs
+   842→- PPR stable in Next.js 16 (Oct 2025) — dev.to/pockit_tools (PPR deep dive), nextjs.org/docs/app/guides/ppr-platform-guide, u11d.com
+   843→- Core Web Vitals 2026 thresholds & pass rates — web.dev/articles/vitals, digitalapplied.com, corewebvitals.io, senorit.de (INP ≤200 ms / LCP ≤2.5 s / CLS ≤0.1; 43% fail INP)
+   844→- GSAP React/useGSAP — gsap.com/resources/React; Motion comparison — motion.dev/docs/gsap-vs-motion; accessibility — gsap.com/resources/a11y, motion.dev/docs/react-accessibility
+   845→- Lenis + GSAP (2026 guide, lenis/react, syncTouch) — devdreaming.com, lenis (Darkroom Engineering)
+   846→- WCAG 2.2 — w3.org/TR/WCAG22, w3.org/WAI/standards-guidelines/wcag, levelaccess.com (9 new SC), ost.agency (April 2026 e-commerce deadline)
+   847→- Color contrast — w3.org/WAI/WCAG22/Understanding/contrast-minimum, dequeuniversity.com/rules/axe/4.8/color-contrast
+   848→- Product variant structured data — developers.google.com/search/docs/appearance/structured-data/product-variants, schema.org/Product
+   849→- Pakistan payments/COD — payatlas.com, norbr.com, xpay.postexglobal.com (80–85% COD), LinkedIn/JazzCash 700k merchants, gsma.com
+   850→- Image formats 2026 — caniuse.com/AVIF, tinify.com, smallpics.io (AVIF universal & smaller than WebP; JPEG XL still limited)
+   851→- Deployment — vercel.com/kb/guide/next-js-on-vercel-vs-cloudflare, contracollective.com (Vercel vs Cloudflare Pages 2026)
+   852→- Analytics — amplitude.com (Next.js analytics 2026), swetrix.com (Fathom vs Plausible), posthog.com
+   853→- Folder structure — nextjs.org/docs/app/getting-started/project-structure, makerkit.dev, feature-sliced.design
+   854→- Forms/state — oneuptime.com (RHF+Zod 2026), wasp.sh, Zustand discussions (persist + skipHydration)
+   855→
+   856→*Report compiled via live web search + page extraction (z-ai-web-dev-sdk). Thresholds and library APIs reflect 2026 documentation; verify exact version pinning in `package.json` before build.*
+   857→
