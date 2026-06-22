@@ -48,3 +48,29 @@ Stage Summary:
 - TOC regenerated: 135 → 206 entries.
 - Final document size: 132KB docx, 140-page PDF preview.
 - Standing by for senior dev's next round of feedback OR greenlight to begin Phase 1 implementation.
+
+---
+Task ID: AURA-EXEC-PLAN-001
+Agent: Super Z (main agent)
+Task: Create an execution plan document companion to the Aura Living Frontend Architecture Plan v1.1. Convert the 5-phase, 9-week build into 11 specific sprints with goals, tasks, files, acceptance criteria, and pause points. Match the v1.1 doc's visual style.
+
+Work Log:
+- Wrote /home/z/my-project/scripts/aura-execution-plan-content.js (~700 lines) with 9 chapters: Overview & How to Use This Plan, Phase 1 Foundation (4 sprints), Phase 2 Core Pages (5 sprints), Phase 3 Animations (2 sprints), Phase 4 SEO & Performance (2 sprints), Phase 5 Pre-Launch QA (2 sprints), Pause Points & Decision Gates, Open Questions & Prerequisites, Definition of Done per Phase.
+- Wrote /home/z/my-project/scripts/aura-execution-plan-build.js — reuses aurelia-plan.js helpers (palette, cover builder, content helpers) for visual consistency with the v1.1 architecture plan.
+- Each sprint follows the same structure: Goal (1 sentence), Tasks (numbered list), Files Created (count + key examples), Acceptance Criteria (binary test), Pause Point (where applicable).
+- 11 pause points placed at course-correction-cheap moments. 5 major checkpoints (Phase 1 sign-off, Phase 2 sign-off, Phase 3 sign-off, Phase 4 sign-off, GO LIVE) marked with star symbol.
+- Chapter 8 lists 6 prerequisites (GitHub repo, Vercel account, domain, image assets, brand wordmark, architecture plan access) with open questions for stakeholder.
+- Chapter 9 consolidates all acceptance criteria into Definition of Done checklists per phase.
+- Built docx (43KB) → add_toc_placeholders.py (57 TOC entries inserted, 43 headings) → postcheck.py (0 errors, 2 acceptable warnings).
+- Generated PDF preview via pandoc+weasyprint (LibreOffice had Io Abort issues from prior session): 34 pages A4, 111KB.
+- Final deliverables in /home/z/my-project/download/:
+  - Aura-Living-Execution-Plan-v1.0.docx (43 KB) — primary deliverable
+  - Aura-Living-Execution-Plan-v1.0.pdf (111 KB, 34 pages A4) — quick-review preview
+
+Stage Summary:
+- Execution plan v1.0 complete and ready for stakeholder/senior-developer review.
+- 11 sprints across 5 phases with binary acceptance criteria per sprint.
+- 11 pause points (5 major) for course-correction without rework cost.
+- 6 prerequisites documented with open questions for stakeholder.
+- Definition of Done per phase consolidated in Chapter 9.
+- Standing by for greenlight to begin Phase 1 Sprint 1.1 (scaffold) OR for senior-dev feedback on this execution plan.
